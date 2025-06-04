@@ -6,12 +6,19 @@ from aio_geojson_usgs_earthquakes.feed_entry import USGSEarthquakeFeedEntry
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
-from .const import DOMAIN, CONF_LATITUDE, CONF_LONGITUDE, CONF_RADIUS, CONF_MINIMUM_MAGNITUDE
+from .const import (
+    DOMAIN,
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
+    CONF_RADIUS,
+    CONF_MINIMUM_MAGNITUDE,
+    CONF_FEED_TYPE
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,17 +28,17 @@ SCAN_INTERVAL = timedelta(minutes=5)
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set up USGS Earthquake sensors from config entry."""
-
     latitude = entry.data[CONF_LATITUDE]
     longitude = entry.data[CONF_LONGITUDE]
     radius = entry.data[CONF_RADIUS]
     min_magnitude = entry.data.get(CONF_MINIMUM_MAGNITUDE, 0.0)
+    feed_type = entry.data.get(CONF_FEED_TYPE, "past_day_all")
 
     feed = USGSEarthquakeFeed(
         home_coordinates=(latitude, longitude),
         filter_radius=radius,
-        filter_minimum_magnitude=min_magnitude
+        filter_minimum_magnitude=min_magnitude,
+        feed_type=feed_type
     )
 
     coordinator = USGSDataUpdateCoordinator(hass, feed)
@@ -63,12 +70,10 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_name = "Nearby Earthquakes"
         self._attr_unique_id = "usgs_quakes_latest"
-        self._entry: USGSEarthquakeFeedEntry | None = None
 
     @property
     def native_value(self):
         if self.coordinator.entries:
-            # Mostrar magnitud del último sismo detectado
             return self.coordinator.entries[0].magnitude
         return None
 
