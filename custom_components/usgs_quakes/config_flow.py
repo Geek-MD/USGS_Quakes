@@ -27,7 +27,7 @@ class USGSQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_LATITUDE): float,
                 vol.Required(CONF_LONGITUDE): float,
-                vol.Required(CONF_RADIUS, default=100.0): float,
+                vol.Required(CONF_RADIUS, default=50.0): float,
                 vol.Optional(CONF_MINIMUM_MAGNITUDE, default=0.0): float,
                 vol.Required(CONF_FEED_TYPE, default="past_day_all"): vol.In(FEED_TYPES)
             })
@@ -50,7 +50,7 @@ class USGSQuakesOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Required(CONF_RADIUS, default=self.config_entry.data.get(CONF_RADIUS, 100.0)): float,
+                vol.Required(CONF_RADIUS, default=self.config_entry.data.get(CONF_RADIUS, 50.0)): float,
                 vol.Required(CONF_MINIMUM_MAGNITUDE, default=self.config_entry.data.get(CONF_MINIMUM_MAGNITUDE, 0.0)): float,
                 vol.Required(CONF_FEED_TYPE, default=self.config_entry.data.get(CONF_FEED_TYPE, "past_day_all")): vol.In(FEED_TYPES)
             })
