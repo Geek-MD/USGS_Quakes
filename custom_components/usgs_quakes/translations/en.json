@@ -2,9 +2,42 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Quakes"
+        "title": "Configure USGS Quakes",
+        "description": "Set your location and filters to monitor nearby earthquakes.",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius": "Radius (km)",
+          "minimum_magnitude": "Minimum magnitude"
+        }
       }
     },
-    "error": {}
+    "error": {
+      "invalid_location": "Invalid coordinates provided"
+    },
+    "abort": {
+      "single_instance_allowed": "Only one instance is allowed."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Adjust Filters",
+        "data": {
+          "radius": "Radius (km)",
+          "minimum_magnitude": "Minimum magnitude"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "usgs_quakes_latest": {
+        "name": "Nearby Earthquakes",
+        "state": {
+          "unknown": "Unknown"
+        }
+      }
+    }
   }
 }
