@@ -8,8 +8,8 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
+from homeassistant.util.unit_system import METRIC_SYSTEM
 
 from .const import (
     DOMAIN,
@@ -21,7 +21,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
 SCAN_INTERVAL = timedelta(minutes=5)
 
 
@@ -73,9 +72,21 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        if self.coordinator.entries:
-            return self.coordinator.entries[0].magnitude
-        return None
+        if not self.coordinator.entries:
+            return None
+
+        latest = self.coordinator.entries[0]
+        magnitude = latest.magnitude
+        distance_km = latest.distance or 0.0
+
+        if self.hass.config.units is METRIC_SYSTEM:
+            distance = round(distance_km, 1)
+            unit = "km"
+        else:
+            distance = round(distance_km * 0.621371, 1)
+            unit = "mi"
+
+        return f"{magnitude} ({distance} {unit})"
 
     @property
     def extra_state_attributes(self):
@@ -83,6 +94,15 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             return {}
 
         latest = self.coordinator.entries[0]
+        distance_km = latest.distance or 0.0
+
+        if self.hass.config.units is METRIC_SYSTEM:
+            distance = round(distance_km, 1)
+            unit = "km"
+        else:
+            distance = round(distance_km * 0.621371, 1)
+            unit = "mi"
+
         return {
             "place": latest.title,
             "magnitude": latest.magnitude,
@@ -91,4 +111,6 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             "status": latest.status,
             "alert": latest.alert,
             "url": latest.external_id,
+            "distance": distance,
+            "distance_unit": unit
         }
