@@ -38,6 +38,10 @@
         "name": "Nearby Earthquakes",
         "state": {
           "unknown": "Unknown"
+        },
+        "attributes": {
+          "distance": "Distance",
+          "distance_unit": "Distance Unit"
         }
       }
     }
