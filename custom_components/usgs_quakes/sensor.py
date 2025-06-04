@@ -5,6 +5,7 @@ from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
 from aio_geojson_usgs_earthquakes.feed_entry import USGSEarthquakeFeedEntry
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.geo_location import ATTR_SOURCE, GeoLocationEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -43,7 +44,14 @@ async def async_setup_entry(
     coordinator = USGSDataUpdateCoordinator(hass, feed)
     await coordinator.async_refresh()
 
-    async_add_entities([USGSEarthquakeSensor(coordinator)], True)
+    sensor = USGSEarthquakeSensor(coordinator, entry)
+    async_add_entities([sensor], True)
+
+    geo_entities = [
+        USGSEarthquakeGeoLocation(entry.entry_id, event)
+        for event in coordinator.entries
+    ]
+    async_add_entities(geo_entities, True)
 
 
 class USGSDataUpdateCoordinator(DataUpdateCoordinator):
@@ -65,10 +73,11 @@ class USGSDataUpdateCoordinator(DataUpdateCoordinator):
 
 
 class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator: USGSDataUpdateCoordinator):
+    def __init__(self, coordinator: USGSDataUpdateCoordinator, entry: ConfigEntry):
         super().__init__(coordinator)
         self._attr_name = "Nearby Earthquakes"
         self._attr_unique_id = "usgs_quakes_latest"
+        self._entry = entry
 
     @property
     def native_value(self):
@@ -103,6 +112,20 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             distance = round(distance_km * 0.621371, 1)
             unit = "mi"
 
+        recent_events = [
+            {
+                "id": e.external_id,
+                "title": e.title,
+                "magnitude": e.magnitude,
+                "time": e.published.isoformat(),
+                "coordinates": e.coordinates,
+                "alert": e.alert,
+                "url": e.external_id,
+                "distance_km": e.distance
+            }
+            for e in self.coordinator.entries
+        ]
+
         return {
             "place": latest.title,
             "magnitude": latest.magnitude,
@@ -112,5 +135,41 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             "alert": latest.alert,
             "url": latest.external_id,
             "distance": distance,
-            "distance_unit": unit
+            "distance_unit": unit,
+            "recent_events": recent_events
         }
+
+
+class USGSEarthquakeGeoLocation(GeoLocationEntity):
+    def __init__(self, config_entry_id: str, event: USGSEarthquakeFeedEntry):
+        self._event = event
+        self._attr_unique_id = f"usgs_quake_{event.external_id.split('/')[-1]}"
+        self._attr_name = event.title
+        self._attr_latitude = event.coordinates[1]
+        self._attr_longitude = event.coordinates[0]
+        self._attr_source = DOMAIN
+        self._attr_unit_of_measurement = "km"
+        self._attr_extra_state_attributes = {
+            "magnitude": event.magnitude,
+            "time": event.published.isoformat(),
+            "alert": event.alert,
+            "url": event.external_id,
+        }
+        self._attr_location_accuracy = None
+        self._attr_icon = "mdi:map-marker-alert"
+
+    @property
+    def latitude(self):
+        return self._attr_latitude
+
+    @property
+    def longitude(self):
+        return self._attr_longitude
+
+    @property
+    def source(self):
+        return DOMAIN
+
+    @property
+    def extra_state_attributes(self):
+        return self._attr_extra_state_attributes
