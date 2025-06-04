@@ -8,5 +8,6 @@
   "requirements": ["aio_geojson_client==0.12"],
   "version": "1.0.0",
   "iot_class": "cloud_polling",
-  "translations": ["en", "es"]
+  "translations": ["en", "es"],
+  "platforms": ["sensor", "geo_location"]
 }
