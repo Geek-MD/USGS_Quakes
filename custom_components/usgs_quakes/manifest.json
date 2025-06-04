@@ -4,7 +4,9 @@
   "codeowners": ["@Geek-MD"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/Geek-MD/USGS-Quakes",
+  "documentation": "https://github.com/Geek-MD/USGS_Quakes",
   "requirements": ["aio_geojson_client==0.12"],
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "iot_class": "cloud_polling",
+  "translations": ["en", "es"]
 }
