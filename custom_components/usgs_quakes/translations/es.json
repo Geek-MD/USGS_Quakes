@@ -38,6 +38,10 @@
         "name": "Sismos Cercanos",
         "state": {
           "unknown": "Desconocido"
+        },
+        "attributes": {
+          "distance": "Distancia",
+          "distance_unit": "Unidad de distancia"
         }
       }
     }
