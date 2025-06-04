@@ -1,0 +1,9 @@
+{
+  "name": "USGS Quakes",
+  "content_in_root": false,
+  "domains": ["sensor"],
+  "country": "US",
+  "homeassistant": "2024.6.0",
+  "render_readme": true,
+  "filename": "custom_components/usgs_quakes/manifest.json"
+}
