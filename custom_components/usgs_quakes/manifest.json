@@ -1,0 +1,10 @@
+{
+  "domain": "usgs_quakes",
+  "name": "USGS Quakes",
+  "codeowners": ["@Geek-MD"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Geek-MD/USGS-Quakes",
+  "requirements": ["aio_geojson_client==0.12"],
+  "version": "1.0.0"
+}
