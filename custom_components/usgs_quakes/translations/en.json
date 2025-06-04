@@ -1,0 +1,10 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure USGS Quakes"
+      }
+    },
+    "error": {}
+  }
+}
