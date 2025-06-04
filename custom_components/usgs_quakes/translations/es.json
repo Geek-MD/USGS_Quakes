@@ -8,7 +8,8 @@
           "latitude": "Latitud",
           "longitude": "Longitud",
           "radius": "Radio (km)",
-          "minimum_magnitude": "Magnitud mínima"
+          "minimum_magnitude": "Magnitud mínima",
+          "feed_type": "Tipo de feed"
         }
       }
     },
@@ -25,7 +26,8 @@
         "title": "Ajustar Filtros",
         "data": {
           "radius": "Radio (km)",
-          "minimum_magnitude": "Magnitud mínima"
+          "minimum_magnitude": "Magnitud mínima",
+          "feed_type": "Tipo de feed"
         }
       }
     }
@@ -39,5 +41,20 @@
         }
       }
     }
+  },
+  "feed_type": {
+    "past_hour_all": "Última hora - Todas las magnitudes",
+    "past_day_all": "Último día - Todas las magnitudes",
+    "past_day_2.5": "Último día - M2.5+",
+    "past_day_4.5": "Último día - M4.5+",
+    "past_day_significant": "Último día - Significativos",
+    "past_7days_all": "Últimos 7 días - Todas las magnitudes",
+    "past_7days_2.5": "Últimos 7 días - M2.5+",
+    "past_7days_4.5": "Últimos 7 días - M4.5+",
+    "past_7days_significant": "Últimos 7 días - Significativos",
+    "past_30days_all": "Últimos 30 días - Todas las magnitudes",
+    "past_30days_2.5": "Últimos 30 días - M2.5+",
+    "past_30days_4.5": "Últimos 30 días - M4.5+",
+    "past_30days_significant": "Últimos 30 días - Significativos"
   }
 }
