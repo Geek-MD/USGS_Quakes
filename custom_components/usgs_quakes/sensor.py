@@ -1,15 +1,22 @@
-from datetime import timedelta
-import logging
+from __future__ import annotations
 
-from aio_geojson_client.usgs_earthquake_feed import USGSEarthquakeFeed
-from aio_geojson_client.feed_entry import FeedEntry
+import logging
+from datetime import timedelta
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import UnitOfLength
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
+from homeassistant.helpers.unit_system import METRIC_SYSTEM
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
+from homeassistant.util.distance import convert as convert_distance
+
+from aio_geojson_client.usgs_earthquake_feed import USGSEarthquakeFeed
+from aio_geojson_client.feed_entry import FeedEntry
 
 from .const import (
     DOMAIN,
@@ -17,20 +24,19 @@ from .const import (
     CONF_LONGITUDE,
     CONF_RADIUS,
     CONF_MINIMUM_MAGNITUDE,
-    CONF_FEED_TYPE
+    CONF_FEED_TYPE,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
 SCAN_INTERVAL = timedelta(minutes=5)
 
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    coordinator: USGSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     await coordinator.async_refresh()
-    async_add_entities([USGSEarthquakeSensor(coordinator)], True)
+    async_add_entities([USGSEarthquakeSensor(coordinator, hass)], True)
 
 
 class USGSDataUpdateCoordinator(DataUpdateCoordinator):
@@ -52,8 +58,9 @@ class USGSDataUpdateCoordinator(DataUpdateCoordinator):
 
 
 class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator: USGSDataUpdateCoordinator):
+    def __init__(self, coordinator: USGSDataUpdateCoordinator, hass: HomeAssistant):
         super().__init__(coordinator)
+        self._hass = hass
         self._attr_name = "Nearby Earthquakes"
         self._attr_unique_id = "usgs_quakes_latest"
 
@@ -69,6 +76,27 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             return {}
 
         latest = self.coordinator.entries[0]
+
+        # Determine unit system
+        is_metric = self._hass.config.units is METRIC_SYSTEM
+        unit = "km" if is_metric else "mi"
+        distance = (
+            latest.distance
+            if is_metric
+            else round(convert_distance(latest.distance, UnitOfLength.KILOMETERS, UnitOfLength.MILES), 2)
+        )
+
+        # Build recent events list
+        recent = [
+            {
+                "title": e.title,
+                "magnitude": e.magnitude,
+                "time": e.published.isoformat(),
+                "url": e.external_id,
+            }
+            for e in self.coordinator.entries
+        ]
+
         return {
             "place": latest.title,
             "magnitude": latest.magnitude,
@@ -77,4 +105,7 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
             "status": latest.status,
             "alert": latest.alert,
             "url": latest.external_id,
+            "distance": round(distance, 2),
+            "distance_unit": unit,
+            "recent_events": recent,
         }
