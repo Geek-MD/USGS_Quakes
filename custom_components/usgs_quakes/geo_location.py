@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from aio_geojson_client.feed_entry import FeedEntry
+from aio_geojson_usgs_earthquakes.feed_entry import FeedEntry
 
 from .const import DOMAIN
 
@@ -19,14 +19,10 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the geo_location entities from the USGS feed."""
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     async def _update_entities():
-        # Elimina entidades anteriores
         async_add_entities([], True)
-
-        # Crea nuevas entidades
         entities = [
             USGSEarthquakeGeoLocation(entry.entry_id, event)
             for event in coordinator.entries
@@ -44,7 +40,7 @@ class USGSEarthquakeGeoLocation(GeoLocationEvent):
         self._attr_name = event.title
         self._attr_source = "usgs"
         self._attr_unit_of_measurement = "km"
-        self._attr_location = (event.coordinates[1], event.coordinates[0])  # (lat, lon)
+        self._attr_location = (event.coordinates[1], event.coordinates[0])
         self._attr_extra_state_attributes = {
             "magnitude": event.magnitude,
             "status": event.status,
@@ -63,7 +59,7 @@ class USGSEarthquakeGeoLocation(GeoLocationEvent):
 
     @property
     def location_accuracy(self):
-        return None  # No accuracy provided by USGS
+        return None
 
     @property
     def source(self):
