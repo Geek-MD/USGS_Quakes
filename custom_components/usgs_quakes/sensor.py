@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_usgs_earthquakes.usgs_earthquake_feed import USGSEarthquakeFeed
 from aio_geojson_usgs_earthquakes.feed_entry import USGSEarthquakeFeedEntry
 
 from homeassistant.components.sensor import SensorEntity
