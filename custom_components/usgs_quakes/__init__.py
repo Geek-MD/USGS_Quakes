@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.config_entries import ConfigEntry
@@ -8,6 +9,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
 from .sensor import USGSDataUpdateCoordinator
+from aio_geojson_client.usgs_earthquake_feed import USGSEarthquakeFeed
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,9 +19,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    # Inicializar feed y coordinator
-    from aio_geojson_usgs_earthquakes.usgs_earthquake_feed import USGSEarthquakeFeed
-
     latitude = entry.data["latitude"]
     longitude = entry.data["longitude"]
     radius = entry.data["radius"]
@@ -36,13 +35,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = USGSDataUpdateCoordinator(hass, feed)
     await coordinator.async_refresh()
 
-    # Guardar en hass.data
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "coordinator": coordinator,
     }
 
-    # Reenviar a plataformas
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setup(entry, "sensor")
     )
