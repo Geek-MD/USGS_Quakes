@@ -18,7 +18,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Inicializar feed y coordinator
-    from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+    from aio_geojson_usgs_earthquakes.usgs_earthquake_feed import USGSEarthquakeFeed
 
     latitude = entry.data["latitude"]
     longitude = entry.data["longitude"]
