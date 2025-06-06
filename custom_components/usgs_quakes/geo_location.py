@@ -17,7 +17,6 @@ async def async_setup_entry(
 ) -> None:
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    # Limpiar entidades anteriores (Home Assistant lo hace automáticamente si usamos unique_id)
     entities = [
         USGSEarthquakeGeoLocation(entry.entry_id, e)
         for e in coordinator.entries
