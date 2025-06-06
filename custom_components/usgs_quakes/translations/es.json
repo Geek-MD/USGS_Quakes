@@ -1,9 +1,10 @@
 {
+  "title": "USGS Quakes",
   "config": {
     "step": {
       "user": {
         "title": "Configurar USGS Quakes",
-        "description": "Define tu ubicación y filtros para monitorear sismos cercanos.",
+        "description": "Define tu ubicación y los parámetros de filtro para el feed de terremotos.",
         "data": {
           "latitude": "Latitud",
           "longitude": "Longitud",
@@ -13,17 +14,14 @@
         }
       }
     },
-    "error": {
-      "invalid_location": "Coordenadas inválidas"
-    },
     "abort": {
-      "single_instance_allowed": "Solo se permite una instancia."
+      "already_configured": "Esta ubicación ya está configurada."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Ajustar Filtros",
+        "title": "Actualizar opciones de USGS Quakes",
         "data": {
           "radius": "Radio (km)",
           "minimum_magnitude": "Magnitud mínima",
@@ -31,41 +29,5 @@
         }
       }
     }
-  },
-  "entity": {
-    "sensor": {
-      "usgs_quakes_latest": {
-        "name": "Sismos Cercanos",
-        "state": {
-          "unknown": "Desconocido"
-        },
-        "attributes": {
-          "distance": "Distancia",
-          "distance_unit": "Unidad de distancia"
-        }
-      }
-    }
-  },
-  "feed_type": {
-    "past_hour_all": "Última hora - Todas las magnitudes",
-    "past_hour_1.0": "Última hora - M1.0+",
-    "past_hour_2.5": "Última hora - M2.5+",
-    "past_hour_4.5": "Última hora - M4.5+",
-    "past_hour_significant": "Última hora - Significativos",
-    "past_day_all": "Último día - Todas las magnitudes",
-    "past_day_1.0": "Último día - M1.0+",
-    "past_day_2.5": "Último día - M2.5+",
-    "past_day_4.5": "Último día - M4.5+",
-    "past_day_significant": "Último día - Significativos",
-    "past_7days_all": "Últimos 7 días - Todas las magnitudes",
-    "past_7days_1.0": "Últimos 7 días - M1.0+",
-    "past_7days_2.5": "Últimos 7 días - M2.5+",
-    "past_7days_4.5": "Últimos 7 días - M4.5+",
-    "past_7days_significant": "Últimos 7 días - Significativos",
-    "past_30days_all": "Últimos 30 días - Todas las magnitudes",
-    "past_30days_1.0": "Últimos 30 días - M1.0+",
-    "past_30days_2.5": "Últimos 30 días - M2.5+",
-    "past_30days_4.5": "Últimos 30 días - M4.5+",
-    "past_30days_significant": "Últimos 30 días - Significativos"
   }
 }
