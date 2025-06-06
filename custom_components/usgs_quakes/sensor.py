@@ -13,8 +13,8 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from aio_geojson_client.usgs_earthquake_feed import USGSEarthquakeFeed
-from aio_geojson_client.feed_entry import FeedEntry
+from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_usgs_earthquakes.feed_entry import FeedEntry
 
 from .const import (
     DOMAIN,
@@ -75,12 +75,10 @@ class USGSEarthquakeSensor(CoordinatorEntity, SensorEntity):
 
         latest = self.coordinator.entries[0]
 
-        # Determine unit system and convert distance
         is_metric = self._hass.config.units.name == "metric"
         unit = "km" if is_metric else "mi"
         distance = latest.distance if is_metric else round(latest.distance * 0.621371, 2)
 
-        # Build recent events list
         recent = [
             {
                 "title": e.title,
