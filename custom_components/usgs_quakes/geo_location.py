@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from aio_geojson_usgs_earthquakes.feed_entry import FeedEntry
+from aio_geojson_usgs_earthquakes.usgs_earthquake_feed import USGSEarthquakeFeed, USGS_EARTHQUAKE_FEED
 
 from .const import DOMAIN
 
