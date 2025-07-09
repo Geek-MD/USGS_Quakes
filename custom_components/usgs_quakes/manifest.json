@@ -5,9 +5,8 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
-  "requirements": ["aio_geojson_client==0.12"],
+  "requirements": ["aio_geojson_usgs_earthquakes==0.6"],
   "version": "1.0.0",
   "iot_class": "cloud_polling",
-  "translations": ["en", "es"],
-  "platforms": ["sensor", "geo_location"]
+  "translations": ["en", "es"]
 }
