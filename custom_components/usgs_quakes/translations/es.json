@@ -1,33 +1,18 @@
 {
-  "title": "USGS Quakes",
+  "title": "Terremotos USGS",
   "config": {
     "step": {
       "user": {
-        "title": "Configurar USGS Quakes",
-        "description": "Define tu ubicación y los parámetros de filtro para el feed de terremotos.",
-        "data": {
-          "latitude": "Latitud",
-          "longitude": "Longitud",
-          "radius": "Radio (km)",
-          "minimum_magnitude": "Magnitud mínima",
-          "feed_type": "Tipo de feed"
-        }
+        "title": "Configurar Terremotos USGS",
+        "description": "Configura el feed de terremotos desde USGS."
       }
     },
-    "abort": {
-      "already_configured": "Esta ubicación ya está configurada."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Actualizar opciones de USGS Quakes",
-        "data": {
-          "radius": "Radio (km)",
-          "minimum_magnitude": "Magnitud mínima",
-          "feed_type": "Tipo de feed"
-        }
-      }
+    "data": {
+      "feed_type": "Tipo de Feed",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "radius": "Radio (km)",
+      "minimum_magnitude": "Magnitud Mínima"
     }
   }
 }
