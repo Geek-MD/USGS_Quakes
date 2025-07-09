@@ -24,6 +24,7 @@ from .const import (
     VALID_FEED_TYPES,
     DEFAULT_MINIMUM_MAGNITUDE,
     DEFAULT_RADIUS_IN_KM,
+    FEED_TYPE_FRIENDLY_NAMES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -163,7 +164,7 @@ class UsgsEarthquakesEvent(GeolocationEvent):
             self._update_from_feed(feed_entry)
 
     def _update_from_feed(self, feed_entry: UsgsEarthquakeHazardsProgramFeedEntry) -> None:
-        self._attr_name = feed_entry.title
+        self._attr_name = f"{FEED_TYPE_FRIENDLY_NAMES.get(self._feed_manager._feed_manager.feed_type, 'USGS Earthquake')} – {feed_entry.title}"
         self._attr_distance = feed_entry.distance_to_home
         self._attr_latitude = feed_entry.coordinates[0]
         self._attr_longitude = feed_entry.coordinates[1]
