@@ -4,11 +4,11 @@
     "step": {
       "user": {
         "title": "Configure USGS Quakes",
-        "description": "Configure the earthquake feed from USGS."
+        "description": "Select the USGS earthquake feed and location settings."
       }
     },
     "data": {
-      "feed_type": "Feed Type",
+      "feed_type_friendly": "Earthquake Feed Type",
       "latitude": "Latitude",
       "longitude": "Longitude",
       "radius": "Radius (km)",
