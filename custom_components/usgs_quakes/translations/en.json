@@ -4,30 +4,15 @@
     "step": {
       "user": {
         "title": "Configure USGS Quakes",
-        "description": "Set your location and filter parameters for the earthquake feed.",
-        "data": {
-          "latitude": "Latitude",
-          "longitude": "Longitude",
-          "radius": "Radius (km)",
-          "minimum_magnitude": "Minimum Magnitude",
-          "feed_type": "Feed Type"
-        }
+        "description": "Configure the earthquake feed from USGS."
       }
     },
-    "abort": {
-      "already_configured": "This location is already configured."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Update USGS Quakes Options",
-        "data": {
-          "radius": "Radius (km)",
-          "minimum_magnitude": "Minimum Magnitude",
-          "feed_type": "Feed Type"
-        }
-      }
+    "data": {
+      "feed_type": "Feed Type",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "radius": "Radius (km)",
+      "minimum_magnitude": "Minimum Magnitude"
     }
   }
 }
