@@ -17,3 +17,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(entry, ["geo_location"])
+
+from .options_flow import UsgsQuakesOptionsFlowHandler
+
+async def async_get_options_flow(config_entry):
+    return UsgsQuakesOptionsFlowHandler(config_entry)
