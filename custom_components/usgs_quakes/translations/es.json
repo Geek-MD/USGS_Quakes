@@ -4,11 +4,11 @@
     "step": {
       "user": {
         "title": "Configurar Terremotos USGS",
-        "description": "Configura el feed de terremotos desde USGS."
+        "description": "Selecciona el feed de terremotos del USGS y configura la ubicación."
       }
     },
     "data": {
-      "feed_type": "Tipo de Feed",
+      "feed_type_friendly": "Tipo de Feed de Terremotos",
       "latitude": "Latitud",
       "longitude": "Longitud",
       "radius": "Radio (km)",
