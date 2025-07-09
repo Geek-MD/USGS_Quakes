@@ -51,3 +51,6 @@ FEED_TYPE_FRIENDLY_NAMES = {
     "past_month_m10_earthquakes": "Past Month – Magnitude ≥ 1.0",
     "past_month_all_earthquakes": "Past Month – All",
 }
+
+# Inverse mapping for form selector
+FRIENDLY_NAME_TO_FEED_TYPE = {v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()}
