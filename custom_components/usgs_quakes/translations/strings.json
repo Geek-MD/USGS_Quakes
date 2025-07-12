@@ -3,11 +3,18 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Quakes"
+        "title": "Configure USGS Feed",
+        "description": "Set parameters for the USGS Earthquake feed"
       }
     },
-    "abort": {
-      "single_instance_allowed": "Only a single instance is allowed."
+    "error": {},
+    "abort": {}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "USGS Quakes Options"
+      }
     }
   }
 }
