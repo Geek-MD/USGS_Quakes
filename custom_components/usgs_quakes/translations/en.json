@@ -3,16 +3,30 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Quakes",
-        "description": "Select the USGS earthquake feed and location settings."
+        "title": "Configure USGS Feed",
+        "description": "Set parameters for the USGS Earthquake feed",
+        "data": {
+          "feed_type": "USGS Feed Type",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius": "Radius (Km)",
+          "minimum_magnitude": "Minimum Magnitude (Mw)"
+        }
       }
-    },
-    "data": {
-      "feed_type_friendly": "Earthquake Feed Type",
-      "latitude": "Latitude",
-      "longitude": "Longitude",
-      "radius": "Radius (km)",
-      "minimum_magnitude": "Minimum Magnitude"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "USGS Quakes Options",
+        "data": {
+          "feed_type": "USGS Feed Type",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius": "Radius (Km)",
+          "minimum_magnitude": "Minimum Magnitude (Mw)"
+        }
+      }
     }
   }
 }
