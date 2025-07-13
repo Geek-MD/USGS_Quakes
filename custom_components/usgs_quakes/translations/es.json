@@ -1,10 +1,10 @@
 {
-  "title": "Terremotos USGS",
+  "title": "USGS Quakes",
   "config": {
     "step": {
       "user": {
-        "title": "Configurar Terremotos USGS",
-        "description": "Selecciona el feed de terremotos del USGS y configura la ubicación."
+        "title": "Configurar USGS Quakes",
+        "description": "Selecciona el feed de terremotos de USGS y la configuración de ubicación."
       }
     },
     "data": {
@@ -13,6 +13,9 @@
       "longitude": "Longitud",
       "radius": "Radio (km)",
       "minimum_magnitude": "Magnitud Mínima"
+    },
+    "error": {
+      "single_instance_allowed": "Solo se permite una instancia de esta integración."
     }
   }
 }
