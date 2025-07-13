@@ -13,6 +13,9 @@
       "longitude": "Longitude",
       "radius": "Radius (km)",
       "minimum_magnitude": "Minimum Magnitude"
+    },
+    "error": {
+      "single_instance_allowed": "Only a single instance is allowed."
     }
   }
 }

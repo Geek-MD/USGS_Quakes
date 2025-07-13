@@ -3,10 +3,11 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Quakes"
+        "title": "Configure USGS Quakes",
+        "description": "Select the USGS earthquake feed and location settings."
       }
     },
-    "abort": {
+    "error": {
       "single_instance_allowed": "Only a single instance is allowed."
     }
   }
