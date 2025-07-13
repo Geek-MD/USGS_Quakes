@@ -1,134 +1,66 @@
-# USGS Quakes
+# 🌎 USGS Quakes
 
-**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that monitors earthquake activity using the [USGS Earthquake Feeds](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
+**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that tracks earthquake activity using the [U.S. Geological Survey (USGS)](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) GeoJSON feeds.
 
-It provides:
-
-- A **sensor** (`sensor.usgs_quakes_latest`) showing the most recent nearby earthquake.
-- A list of **recent events** as an attribute (`recent_events`).
-- Dynamic creation of **geo_location entities** for each earthquake.
-- Support for **20 different USGS feeds**, with configurable filters.
+> Based on the official `usgs_earthquakes_feed` integration from Home Assistant Core, adapted to run as a custom component.
 
 ---
 
-## Installation
+## 📦 Features
 
-Install the integration through [HACS](https://hacs.xyz/), or copy the repository folder to:
-
-~~~plaintext
-custom_components/usgs_quakes/
-~~~
-
----
-
-## Configuration
-
-Add the integration via **Home Assistant UI**:
-
-1. Go to **Settings > Devices & Services > Integrations > + Add Integration**
-2. Search for `USGS Quakes`
-3. Enter your:
-   - Latitude and longitude
-   - Radius (km)
-   - Minimum magnitude
-   - Feed type (select from 20 available)
-
-You can change these settings later from the **Options menu**.
+- Dynamically creates `geo_location` entities for recent earthquake events.
+- Supports all 20 official USGS feeds (e.g., *Past Hour M4.5+*, *Past Day All Earthquakes*, etc.).
+- Configurable filtering by:
+  - Minimum magnitude (Mw).
+  - Distance radius from a chosen location (in kilometers).
+- Automatic updates every 5 minutes.
+- Setup via the Home Assistant UI.
 
 ---
 
-## Entities
+## 🔧 Installation
 
-### `sensor.usgs_quakes_latest`
+1. Copy the folder `usgs_quakes` to your `config/custom_components/` directory: `custom_components/usgs_quakes/`
+3. Restart Home Assistant.
 
-This sensor displays:
+4. Go to **Settings > Devices & Services > Integrations** and click **“+ Add Integration”**.
 
-- The magnitude and distance of the most recent earthquake.
-- Attributes:
-  - `place`: Description
-  - `magnitude`
-  - `coordinates`
-  - `time`
-  - `status`
-  - `alert`
-  - `url`
-  - `distance`: Automatically shown in **kilometers or miles**, depending on your Home Assistant unit settings.
-  - `distance_unit`: `"km"` or `"mi"`
-  - `recent_events`: List of events from the selected feed
+5. Search for `USGS Quakes` and configure:
+- Feed type.
+- Location (latitude & longitude).
+- Radius (in km).
+- Minimum magnitude.
 
 ---
 
-### `geo_location.usgs_quake_*`
+## 🌐 Supported Feeds
 
-Each earthquake event is represented as a `geo_location` entity:
+| Feed ID                          | Description                     |
+|----------------------------------|---------------------------------|
+| `past_hour_all_earthquakes`     | All earthquakes (last hour)     |
+| `past_hour_m45_earthquakes`     | M4.5+ earthquakes (last hour)   |
+| `past_day_significant_earthquakes` | Significant quakes (24h)     |
+| ...                              | *See full list in codebase*     |
 
-- Location: Latitude and longitude of the event
-- Attributes:
-  - `magnitude`
-  - `time`
-  - `alert`
-  - `url`
-
-Entities are automatically updated and replaced whenever the feed is refreshed (every 5 minutes).
+Supports all feeds listed in the [USGS GeoJSON documentation](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
 
 ---
 
-## Cards
+## 📌 Notes
 
-You can add the following cards to your dashboard:
-
-### Entities Card
-
-~~~yaml
-type: entities
-title: Nearby Earthquake
-entities:
-  - entity: sensor.usgs_quakes_latest
-  - type: attribute
-    entity: sensor.usgs_quakes_latest
-    attribute: place
-    name: Location
-  - type: attribute
-    entity: sensor.usgs_quakes_latest
-    attribute: magnitude
-    name: Magnitude
-  - type: attribute
-    entity: sensor.usgs_quakes_latest
-    attribute: distance
-    name: Distance
-  - type: attribute
-    entity: sensor.usgs_quakes_latest
-    attribute: time
-    name: Time
-~~~
-
-### Map Card
-
-~~~yaml
-type: map
-title: Earthquake Map
-entities:
-  - geo_location.usgs_quake_*
-hours_to_show: 24
-~~~
+- Requires Home Assistant **2024.6.0** or later.
+- Uses the `aio-geojson-usgs-earthquakes==0.3` library.
+- Only **one instance** of this integration should be configured at a time.
 
 ---
 
-## Supported Feeds
+## 🧑‍💻 Credits
 
-This integration supports all 20 official USGS GeoJSON feed types, including:
-
-- `past_hour_all`
-- `past_hour_2.5`
-- `past_day_significant`
-- `past_7days_4.5`
-- `past_30days_all`
-- *(and many more)*
-
-You can change the active feed anytime through the Options menu.
+Developed by [@Geek-MD](https://github.com/Geek-MD)  
+Inspired by the original USGS feed integration by [@exxamalte](https://github.com/exxamalte)
 
 ---
 
-## Attribution
+## 📖 License
 
-Earthquake data provided by the [United States Geological Survey (USGS)](https://earthquake.usgs.gov/).
+This project is licensed under the MIT License.
