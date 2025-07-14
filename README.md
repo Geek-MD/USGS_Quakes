@@ -1,66 +1,92 @@
-# 🌎 USGS Quakes
+# USGS Quakes
 
-**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that tracks earthquake activity using the [U.S. Geological Survey (USGS)](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) GeoJSON feeds.
+**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that provides geolocation entities for earthquakes reported by the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/).
 
-> Based on the official `usgs_earthquakes_feed` integration from Home Assistant Core, adapted to run as a custom component.
-
----
-
-## 📦 Features
-
-- Dynamically creates `geo_location` entities for recent earthquake events.
-- Supports all 20 official USGS feeds (e.g., *Past Hour M4.5+*, *Past Day All Earthquakes*, etc.).
-- Configurable filtering by:
-  - Minimum magnitude (Mw).
-  - Distance radius from a chosen location (in kilometers).
-- Automatic updates every 5 minutes.
-- Setup via the Home Assistant UI.
+> ✅ Supports configuration via the Home Assistant UI  
+> 🔁 Uses `DataUpdateCoordinator` for efficient updates  
+> 🌍 Entities are created dynamically from the USGS GeoJSON feed  
+> 🔒 Only one instance can be configured (v1.0.0)
 
 ---
 
-## 🔧 Installation
+## 📦 Installation
 
-1. Copy the folder `usgs_quakes` to your `config/custom_components/` directory: `custom_components/usgs_quakes/`
+1. Copy this folder to your Home Assistant custom components directory:
+
+    ```bash
+    custom_components/usgs_quakes/
+    ```
+
+2. Ensure your `configuration.yaml` allows custom integrations.
+
 3. Restart Home Assistant.
 
-4. Go to **Settings > Devices & Services > Integrations** and click **“+ Add Integration”**.
+---
 
-5. Search for `USGS Quakes` and configure:
-- Feed type.
-- Location (latitude & longitude).
-- Radius (in km).
-- Minimum magnitude.
+## ⚙️ Configuration
+
+Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
+
+You’ll need to provide:
+
+- **Latitude / Longitude**: Center location for the search
+- **Radius (km)**: Area around your location to include in the feed
+- **Minimum Magnitude**: Filter to show only significant quakes
+- **Feed Type**: Select one of the 20 feed options provided by USGS (e.g., `past_hour_m1.0`, `past_day_all`, etc.)
+
+Only one instance is allowed in this version.
 
 ---
 
-## 🌐 Supported Feeds
+## 📡 Feed Types
 
-| Feed ID                          | Description                     |
-|----------------------------------|---------------------------------|
-| `past_hour_all_earthquakes`     | All earthquakes (last hour)     |
-| `past_hour_m45_earthquakes`     | M4.5+ earthquakes (last hour)   |
-| `past_day_significant_earthquakes` | Significant quakes (24h)     |
-| ...                              | *See full list in codebase*     |
+Feed types are based on the official USGS GeoJSON feed identifiers. Some examples:
 
-Supports all feeds listed in the [USGS GeoJSON documentation](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
+- `past_hour_all`
+- `past_day_m2.5`
+- `past_week_significant`
+- `past_month_all`
 
----
-
-## 📌 Notes
-
-- Requires Home Assistant **2024.6.0** or later.
-- Uses the `aio-geojson-usgs-earthquakes==0.3` library.
-- Only **one instance** of this integration should be configured at a time.
+See full list at:  
+👉 [https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
 
 ---
 
-## 🧑‍💻 Credits
+## 🛰️ Entity Details
 
-Developed by [@Geek-MD](https://github.com/Geek-MD)  
-Inspired by the original USGS feed integration by [@exxamalte](https://github.com/exxamalte)
+Each earthquake creates a `geo_location` entity with:
+
+- **Name**: Earthquake title
+- **Latitude / Longitude**
+- **Magnitude**
+- **Time**
+- **Status**
+- **Place**
+- **Updated timestamp**
 
 ---
 
-## 📖 License
+## 🛠️ Known Limitations
 
-This project is licensed under the MIT License.
+- Only a single instance can be configured (multi-instance support will be added in future versions).
+- No options flow yet (editing requires removing and re-adding the integration).
+- No persistent history of past events (only current events in feed).
+
+---
+
+## 📘 Documentation
+
+For more information and updates:  
+**GitHub**: [https://github.com/Geek-MD/USGS_Quakes](https://github.com/Geek-MD/USGS_Quakes)
+
+---
+
+## 👨‍💻 Author
+
+Developed by [Geek-MD](https://github.com/Geek-MD)
+
+---
+
+## 📄 License
+
+MIT License
