@@ -1,0 +1,15 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius": "Radius (km)",
+          "minimum_magnitude": "Minimum Magnitude (Kw)",
+          "feed_type": "Feed Type"
+        }
+      }
+    }
+  }
+}
