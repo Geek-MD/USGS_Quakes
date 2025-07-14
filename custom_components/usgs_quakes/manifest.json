@@ -3,7 +3,8 @@
   "name": "USGS Quakes",
   "version": "1.0.0",
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
-  "requirements": ["aio-geojson-usgs-earthquakes==0.3"],
+  "requirements": ["aio_geojson_client==0.12", "aio_geojson_usgs_earthquakes==0.6"],
+  "dependencies": [],
   "codeowners": ["@Geek-MD"],
   "config_flow": true,
   "iot_class": "cloud_polling"
