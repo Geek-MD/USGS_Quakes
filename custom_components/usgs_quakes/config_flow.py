@@ -1,20 +1,11 @@
 from homeassistant import config_entries
 import voluptuous as vol
+from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
+from homeassistant.helpers import config_validation as cv
+from .const import *
+from aio_geojson_usgs_earthquakes import USGS_EARTHQUAKE_FEED
 
-from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE, CONF_RADIUS
-from .const import (
-    DOMAIN,
-    VALID_FEED_TYPES,
-    DEFAULT_RADIUS_IN_KM,
-    DEFAULT_MINIMUM_MAGNITUDE,
-)
-
-CONF_FEED_TYPE = "feed_type"
-CONF_MINIMUM_MAGNITUDE = "minimum_magnitude"
-
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for USGS Quakes."""
-
+class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
@@ -22,11 +13,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title="USGS Quakes", data=user_input)
 
         schema = vol.Schema({
-            vol.Required(CONF_FEED_TYPE): vol.In(VALID_FEED_TYPES),
-            vol.Required(CONF_LATITUDE, default=self.hass.config.latitude): vol.Coerce(float),
-            vol.Required(CONF_LONGITUDE, default=self.hass.config.longitude): vol.Coerce(float),
-            vol.Required(CONF_RADIUS, default=DEFAULT_RADIUS_IN_KM): vol.Coerce(float),
-            vol.Required(CONF_MINIMUM_MAGNITUDE, default=DEFAULT_MINIMUM_MAGNITUDE): vol.Coerce(float),
+            vol.Required(CONF_LATITUDE): cv.latitude,
+            vol.Required(CONF_LONGITUDE): cv.longitude,
+            vol.Optional(CONF_RADIUS, default=DEFAULT_RADIUS): vol.Coerce(float),
+            vol.Optional(CONF_MINIMUM_MAGNITUDE, default=DEFAULT_MINIMUM_MAGNITUDE): vol.Coerce(float),
+            vol.Required(CONF_FEED_TYPE): vol.In(list(USGS_EARTHQUAKE_FEED.keys())),
         })
 
         return self.async_show_form(step_id="user", data_schema=schema)
