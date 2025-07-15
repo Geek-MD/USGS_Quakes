@@ -2,10 +2,10 @@
 
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that provides geolocation entities for earthquakes reported by the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/).
 
-> ✅ Supports configuration via the Home Assistant UI  
-> 🔁 Uses `DataUpdateCoordinator` for efficient updates  
-> 🌍 Entities are created dynamically from the USGS GeoJSON feed  
-> 🔒 Only one instance can be configured (v1.0.0)
+> ✅ Identical behavior to the official `usgs_earthquakes_feed` integration  
+> 🔁 Dynamically creates `geo_location` entities based on real-time earthquake data  
+> ⚙️ Adds support for UI-based configuration using `config_flow`  
+> 🌍 Uses USGS GeoJSON feeds via `aio-geojson-usgs-earthquakes==0.3`
 
 ---
 
@@ -17,66 +17,52 @@
     custom_components/usgs_quakes/
     ```
 
-2. Ensure your `configuration.yaml` allows custom integrations.
+2. Restart Home Assistant.
 
-3. Restart Home Assistant.
+3. Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
 
 ---
 
 ## ⚙️ Configuration
 
-Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
+The following parameters are configurable via the UI:
 
-You’ll need to provide:
-
-- **Latitude / Longitude**: Center location for the search
-- **Radius (km)**: Area around your location to include in the feed
-- **Minimum Magnitude**: Filter to show only significant quakes
-- **Feed Type**: Select one of the 20 feed options provided by USGS (e.g., `past_hour_m1.0`, `past_day_all`, etc.)
-
-Only one instance is allowed in this version.
+- **Latitude / Longitude**: Center of your search area.
+- **Radius (km)**: Earthquake search radius.
+- **Minimum Magnitude**: Filter by magnitude.
+- **Feed Type**: One of the 20 official USGS GeoJSON feed types.
 
 ---
 
-## 📡 Feed Types
+## 📡 Supported Feed Types
 
-Feed types are based on the official USGS GeoJSON feed identifiers. Some examples:
+Examples:
 
 - `past_hour_all`
 - `past_day_m2.5`
 - `past_week_significant`
 - `past_month_all`
 
-See full list at:  
+For the full list of available feeds, visit:  
 👉 [https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
 
 ---
 
 ## 🛰️ Entity Details
 
-Each earthquake creates a `geo_location` entity with:
+Each earthquake is represented as a `geo_location` entity, containing:
 
-- **Name**: Earthquake title
-- **Latitude / Longitude**
-- **Magnitude**
-- **Time**
-- **Status**
-- **Place**
-- **Updated timestamp**
-
----
-
-## 🛠️ Known Limitations
-
-- Only a single instance can be configured (multi-instance support will be added in future versions).
-- No options flow yet (editing requires removing and re-adding the integration).
-- No persistent history of past events (only current events in feed).
+- Title and location
+- Latitude / Longitude
+- Magnitude
+- Time of event
+- Place and status metadata
 
 ---
 
 ## 📘 Documentation
 
-For more information and updates:  
+Source repository:  
 **GitHub**: [https://github.com/Geek-MD/USGS_Quakes](https://github.com/Geek-MD/USGS_Quakes)
 
 ---
