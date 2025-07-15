@@ -1,7 +1,7 @@
 from datetime import timedelta
 from homeassistant.helpers.event import async_track_time_interval
 
-from aio_geojson_usgs_earthquakes import USGSEarthquakeFeedManager
+from aio_geojson_usgs_earthquakes.feed_manager import USGSEarthquakeFeedManager
 from .const import DOMAIN
 
 
