@@ -1,6 +1,9 @@
 from datetime import timedelta
 from homeassistant.helpers.event import async_track_time_interval
-from aio_geojson_usgs_earthquakes.feed_manager import FeedManager
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+from aio_geojson_client.feed_manager import GeoJsonFeedManager
+from aio_geojson_usgs_earthquakes.usgs_quakes_feed import USGSEarthquakeFeed
 
 from .const import DOMAIN
 
@@ -13,16 +16,18 @@ async def setup_platform(hass, config_entry):
     min_magnitude = data["minimum_magnitude"]
     feed_type = data["feed_type"]
 
-    session = hass.helpers.aiohttp_client.async_get_clientsession(hass)
+    session = async_get_clientsession(hass)
 
-    manager = FeedManager(
+    manager = GeoJsonFeedManager(
         hass,
         lambda event_type, entity: None,  # No custom entity handling
-        feed_type,
-        (latitude, longitude),
-        radius,
-        min_magnitude,
-        session,
+        USGSEarthquakeFeed(
+            feed_type,
+            session,
+            (latitude, longitude),
+            filter_radius=radius,
+            filter_minimum_magnitude=min_magnitude,
+        ),
     )
 
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {
