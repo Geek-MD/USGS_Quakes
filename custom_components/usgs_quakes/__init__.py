@@ -1,29 +1,58 @@
 from __future__ import annotations
 
-import voluptuous as vol
+import logging
+from aiohttp import ClientSession
 
-from homeassistant import config_entries
-from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
-from homeassistant.data_entry_flow import FlowResult
-from .const import DOMAIN, CONF_RADIUS, CONF_MINIMUM_MAGNITUDE, CONF_FEED_TYPE, DEFAULT_RADIUS, DEFAULT_MINIMUM_MAGNITUDE, DEFAULT_FEED_TYPE
+from aio_geojson_usgs_earthquakes import USGSEarthquakeFeedManager
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_time_interval
+from datetime import timedelta
 
-class USGSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for USGS Quakes."""
+from .const import DOMAIN
 
-    VERSION = 1
+PLATFORMS: list[str] = ["geo_location"]
 
-    async def async_step_user(self, user_input=None) -> FlowResult:
-        if user_input is not None:
-            return self.async_create_entry(title="USGS Quakes", data=user_input)
+_LOGGER = logging.getLogger(__name__)
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_LATITUDE, default=self.hass.config.latitude): float,
-                vol.Required(CONF_LONGITUDE, default=self.hass.config.longitude): float,
-                vol.Optional(CONF_RADIUS, default=DEFAULT_RADIUS): float,
-                vol.Optional(CONF_MINIMUM_MAGNITUDE, default=DEFAULT_MINIMUM_MAGNITUDE): float,
-                vol.Optional(CONF_FEED_TYPE, default=DEFAULT_FEED_TYPE): str,
-            }),
-        )
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up USGS Quakes from a config entry."""
+    hass.data.setdefault(DOMAIN, {})
+
+    latitude = entry.data["latitude"]
+    longitude = entry.data["longitude"]
+    radius = entry.data["radius"]
+    minimum_magnitude = entry.data["minimum_magnitude"]
+    feed_type = entry.data["feed_type"]
+
+    session: ClientSession = async_get_clientsession(hass)
+
+    manager = USGSEarthquakeFeedManager(
+        hass,
+        lambda event_type, entity: None,
+        feed_type,
+        (latitude, longitude),
+        radius,
+        minimum_magnitude,
+        session,
+    )
+
+    hass.data[DOMAIN][entry.entry_id] = manager
+
+    async def update_feed(now):
+        await manager.update()
+
+    async_track_time_interval(hass, update_feed, timedelta(minutes=5))
+    await manager.update()
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
+    return unload_ok
