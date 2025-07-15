@@ -1,21 +1,14 @@
 from datetime import timedelta
-import logging
-
-from homeassistant.core import HomeAssistant
+from homeassistant.components.geo_location import GeoLocationEvent
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from aio_geojson_usgs_earthquakes.feed_manager import USGSEarthquakeFeedManager
+from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_client.feed_manager import FeedManager
 
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
-
-async def async_setup_entry(
-    hass: HomeAssistant, config_entry: ConfigType, async_add_entities
-) -> None:
-    """Set up the USGS Earthquakes geo_location platform."""
+async def async_setup_entry(hass, config_entry, async_add_entities):
     data = config_entry.data
     latitude = data["latitude"]
     longitude = data["longitude"]
@@ -25,22 +18,46 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
 
-    manager = USGSEarthquakeFeedManager(
+    feed = USGSEarthquakeFeed(
+        session=session,
+        home_coordinates=(latitude, longitude),
+        filter_radius=radius,
+        filter_minimum_magnitude=min_magnitude,
+        feed_type=feed_type,
+    )
+
+    manager = FeedManager(
         hass,
-        async_add_entities,
-        feed_type,
-        (latitude, longitude),
-        radius,
-        min_magnitude,
-        session,
+        feed,
+        generate_entity,
+        DOMAIN,
+        config_entry.entry_id,
     )
 
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {
         "manager": manager,
     }
 
-    async def update(event_time):
+    async def update_feed(now):
         await manager.update()
 
-    async_track_time_interval(hass, update, timedelta(minutes=5))
+    async_track_time_interval(hass, update_feed, timedelta(minutes=5))
     await manager.update()
+
+def generate_entity(external_id, unit, attributes):
+    return USGSQuakeEntity(external_id, unit, attributes)
+
+class USGSQuakeEntity(GeoLocationEvent):
+    def __init__(self, external_id, unit, attributes):
+        self._attr_unique_id = external_id
+        self._attr_source = "usgs_quakes"
+        self._attr_name = attributes.get("title")
+        self._attr_unit_of_measurement = unit
+        self._attr_latitude = attributes.get("latitude")
+        self._attr_longitude = attributes.get("longitude")
+        self._attr_distance = attributes.get("distance")
+        self._attr_extra_state_attributes = attributes
+
+    @property
+    def should_poll(self):
+        return False
