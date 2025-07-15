@@ -1,9 +1,24 @@
 from datetime import timedelta
+
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from aio_geojson_usgs_earthquakes import USGS_EARTHQUAKE_FEED, FeedManager
-from .const import *
+
+from aio_geojson_usgs_earthquakes import FeedManager
+from aio_geojson_usgs_earthquakes.feed import USGS_EARTHQUAKE_FEED
+
+from .const import (
+    DOMAIN,
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
+    CONF_RADIUS,
+    CONF_MINIMUM_MAGNITUDE,
+    CONF_FEED_TYPE,
+    DEFAULT_RADIUS,
+    DEFAULT_MINIMUM_MAGNITUDE,
+    DEFAULT_SCAN_INTERVAL,
+)
+
 
 class UsgsEarthquakeFeedCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -18,8 +33,12 @@ class UsgsEarthquakeFeedCoordinator(DataUpdateCoordinator):
         url = USGS_EARTHQUAKE_FEED[feed_type]
 
         self.feed_manager = FeedManager(
-            self._generate_callback, url, (latitude, longitude), filter_radius=radius,
-            minimum_magnitude=minimum_magnitude, websession=hass.helpers.aiohttp_client.async_get_clientsession(hass)
+            self._generate_callback,
+            url,
+            (latitude, longitude),
+            filter_radius=radius,
+            minimum_magnitude=minimum_magnitude,
+            websession=hass.helpers.aiohttp_client.async_get_clientsession(hass)
         )
 
         super().__init__(
@@ -33,5 +52,5 @@ class UsgsEarthquakeFeedCoordinator(DataUpdateCoordinator):
         await self.feed_manager.update()
 
     def _generate_callback(self, event_type, entity):
-        # Future enhancement: we could track created/removed earthquakes
+        # Placeholder for event tracking
         pass
