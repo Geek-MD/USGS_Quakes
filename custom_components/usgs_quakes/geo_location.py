@@ -3,7 +3,7 @@ from homeassistant.components.geo_location import GeoLocationEvent
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_usgs_earthquakes.feed import USGSEarthquakeFeed
 from aio_geojson_client.feed_manager import FeedManager
 
 from .const import DOMAIN
