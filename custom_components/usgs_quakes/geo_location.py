@@ -1,7 +1,7 @@
 from datetime import timedelta
 from homeassistant.helpers.event import async_track_time_interval
-
 from aio_geojson_usgs_earthquakes.feed_manager import FeedManager
+
 from .const import DOMAIN
 
 
@@ -17,7 +17,7 @@ async def setup_platform(hass, config_entry):
 
     manager = FeedManager(
         hass,
-        lambda event_type, entity: None,
+        lambda event_type, entity: None,  # No custom entity handling
         feed_type,
         (latitude, longitude),
         radius,
