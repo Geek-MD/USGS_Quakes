@@ -1,78 +1,38 @@
 # USGS Quakes
+**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors real-time earthquake data from the [United States Geological Survey (USGS)](https://earthquake.usgs.gov/earthquakes/feed/).
 
-**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io/) that provides geolocation entities for earthquakes reported by the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/).
+This integration is based on the official USGS Earthquake Feed integration, but adds support for configuration through the Home Assistant UI (`config_flow`).
 
-> ✅ Identical behavior to the official `usgs_earthquakes_feed` integration  
-> 🔁 Dynamically creates `geo_location` entities based on real-time earthquake data  
-> ⚙️ Adds support for UI-based configuration using `config_flow`  
-> 🌍 Uses USGS GeoJSON feeds via `aio-geojson-usgs-earthquakes==0.3`
+## Features
+- Monitors earthquakes in near real-time from USGS.
+- Allows selection of feed type (e.g., all earthquakes, significant, past hour/day/week).
+- Filters by radius and minimum magnitude.
+- Displays distance and magnitude for each event.
+- Works as a `geo_location` entity in Home Assistant.
 
----
-
-## 📦 Installation
-
-1. Copy this folder to your Home Assistant custom components directory:
-
-    ```bash
-    custom_components/usgs_quakes/
-    ```
-
+## Installation
+1. Copy this repository to your `custom_components` directory:
+   ```bash
+   custom_components/usgs_quakes/
+   ```
 2. Restart Home Assistant.
+3. Go to **Settings > Devices & Services > Integrations**, click **Add Integration**, and search for **USGS Quakes**.
 
-3. Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
+## Configuration Options
+- **Feed type**: Select the type of earthquake feed (e.g., all, significant).
+- **Radius**: Distance (in kilometers) around your location to filter results.
+- **Minimum magnitude**: Ignore earthquakes below this magnitude.
+- **Latitude & Longitude**: Optional. If not provided, Home Assistant's configured location is used.
 
----
+## Supported Feed Types
+This integration supports all 20 feed types provided by USGS:
+- `all_hour`, `1.0_hour`, `2.5_hour`, `4.5_hour`, `significant_hour`
+- `all_day`, `1.0_day`, `2.5_day`, `4.5_day`, `significant_day`
+- `all_week`, `1.0_week`, `2.5_week`, `4.5_week`, `significant_week`
+- `all_month`, `1.0_month`, `2.5_month`, `4.5_month`, `significant_month`
 
-## ⚙️ Configuration
+## Credits
+Based on the official [usgs_earthquakes_feed](https://www.home-assistant.io/integrations/usgs_earthquakes_feed) integration.
 
-The following parameters are configurable via the UI:
-
-- **Latitude / Longitude**: Center of your search area.
-- **Radius (km)**: Earthquake search radius.
-- **Minimum Magnitude**: Filter by magnitude.
-- **Feed Type**: One of the 20 official USGS GeoJSON feed types.
-
----
-
-## 📡 Supported Feed Types
-
-Examples:
-
-- `past_hour_all`
-- `past_day_m2.5`
-- `past_week_significant`
-- `past_month_all`
-
-For the full list of available feeds, visit:  
-👉 [https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
-
----
-
-## 🛰️ Entity Details
-
-Each earthquake is represented as a `geo_location` entity, containing:
-
-- Title and location
-- Latitude / Longitude
-- Magnitude
-- Time of event
-- Place and status metadata
-
----
-
-## 📘 Documentation
-
-Source repository:  
-**GitHub**: [https://github.com/Geek-MD/USGS_Quakes](https://github.com/Geek-MD/USGS_Quakes)
-
----
-
-## 👨‍💻 Author
-
-Developed by [Geek-MD](https://github.com/Geek-MD)
-
----
-
-## 📄 License
-
+## License
 MIT License
