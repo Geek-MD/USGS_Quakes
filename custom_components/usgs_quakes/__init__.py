@@ -1,58 +1,40 @@
 from __future__ import annotations
 
 import logging
-from aiohttp import ClientSession
 
-from aio_geojson_usgs_earthquakes.feed_manager import USGSEarthquakeFeedManager
+from aiohttp import ClientSession
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.event import async_track_time_interval
-from datetime import timedelta
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
 
-PLATFORMS: list[str] = ["geo_location"]
-
 _LOGGER = logging.getLogger(__name__)
+
+PLATFORMS = ["geo_location"]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up the USGS Quakes integration."""
+    return True
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up USGS Quakes from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-
-    latitude = entry.data["latitude"]
-    longitude = entry.data["longitude"]
-    radius = entry.data["radius"]
-    minimum_magnitude = entry.data["minimum_magnitude"]
-    feed_type = entry.data["feed_type"]
-
-    session: ClientSession = async_get_clientsession(hass)
-
-    manager = USGSEarthquakeFeedManager(
-        hass,
-        lambda event_type, entity: None,
-        feed_type,
-        (latitude, longitude),
-        radius,
-        minimum_magnitude,
-        session,
-    )
-
-    hass.data[DOMAIN][entry.entry_id] = manager
-
-    async def update_feed(now):
-        await manager.update()
-
-    async_track_time_interval(hass, update_feed, timedelta(minutes=5))
-    await manager.update()
+    hass.data[DOMAIN][entry.entry_id] = {}
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        hass.data[DOMAIN].pop(entry.entry_id, None)
     return unload_ok
