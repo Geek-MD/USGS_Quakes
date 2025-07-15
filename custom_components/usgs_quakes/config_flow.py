@@ -2,8 +2,18 @@ from homeassistant import config_entries
 import voluptuous as vol
 from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.helpers import config_validation as cv
-from .const import *
-from aio_geojson_usgs_earthquakes import USGS_EARTHQUAKE_FEED
+
+from aio_geojson_usgs_earthquakes.feed import USGS_EARTHQUAKE_FEED
+
+from .const import (
+    DOMAIN,
+    CONF_RADIUS,
+    CONF_MINIMUM_MAGNITUDE,
+    CONF_FEED_TYPE,
+    DEFAULT_RADIUS,
+    DEFAULT_MINIMUM_MAGNITUDE,
+)
+
 
 class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
