@@ -6,7 +6,7 @@
           "latitude": "Latitude",
           "longitude": "Longitude",
           "radius": "Radius (km)",
-          "minimum_magnitude": "Minimum Magnitude (Kw)",
+          "minimum_magnitude": "Minimum Magnitude",
           "feed_type": "Feed Type"
         }
       }
