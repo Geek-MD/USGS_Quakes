@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from aiohttp import ClientSession
 
-from aio_geojson_usgs_earthquakes import USGSEarthquakeFeedManager
+from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_client.feed_manager import FeedManager
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
-from datetime import timedelta
 
 from .const import DOMAIN
 
@@ -29,14 +30,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     session: ClientSession = async_get_clientsession(hass)
 
-    manager = USGSEarthquakeFeedManager(
+    feed = USGSEarthquakeFeed(
+        session=session,
+        home_coordinates=(latitude, longitude),
+        filter_radius=radius,
+        filter_minimum_magnitude=minimum_magnitude,
+        feed_type=feed_type,
+    )
+
+    manager = FeedManager(
         hass,
-        lambda event_type, entity: None,
-        feed_type,
-        (latitude, longitude),
-        radius,
-        minimum_magnitude,
-        session,
+        feed,
+        lambda external_id, unit, attrs: None,  # Puedes reemplazar esto por una función real
+        DOMAIN,
+        entry.entry_id,
     )
 
     hass.data[DOMAIN][entry.entry_id] = manager
