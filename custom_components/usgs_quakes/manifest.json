@@ -3,7 +3,10 @@
   "name": "USGS Quakes",
   "version": "1.0.0",
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
-  "requirements": ["aio-geojson-usgs-earthquakes==0.3", "aio-geojson-client==0.12"],
+  "requirements": [
+    "aio-geojson-usgs-earthquakes==0.3",
+    "aio-geojson-client==0.12"
+  ],
   "dependencies": [],
   "integration_type": "service",
   "loggers": ["aio_geojson_usgs_earthquakes"],
