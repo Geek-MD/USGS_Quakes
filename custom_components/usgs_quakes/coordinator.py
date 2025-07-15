@@ -4,8 +4,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
-from aio_geojson_usgs_earthquakes import FeedManager
 from aio_geojson_usgs_earthquakes.feed import USGS_EARTHQUAKE_FEED
+from aio_geojson_usgs_earthquakes.feed_manager import FeedManager
 
 from .const import (
     DOMAIN,
