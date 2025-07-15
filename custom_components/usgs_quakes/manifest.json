@@ -5,6 +5,9 @@
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
   "requirements": ["aio-geojson-usgs-earthquakes==0.3"],
   "dependencies": [],
+  "integration_type": "service",
+  "loggers": ["aio_geojson_usgs_earthquakes"],
+  "quality_scale": "legacy",
   "codeowners": ["@Geek-MD"],
   "config_flow": true,
   "iot_class": "cloud_polling"
