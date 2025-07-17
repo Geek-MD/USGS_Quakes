@@ -1,7 +1,7 @@
 {
   "domain": "usgs_quakes",
   "name": "USGS Quakes",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
   "requirements": [
     "aio-geojson-usgs-earthquakes==0.3",
