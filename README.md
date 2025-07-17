@@ -1,62 +1,48 @@
 # USGS Quakes
 
-**USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that creates geolocation entities from the USGS Earthquake Hazards Program feeds.
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-blue.svg?style=flat-square)](https://hacs.xyz)
 
-This integration monitors seismic activity and creates `geo_location` entities for each detected earthquake event within a defined radius and magnitude threshold.
+**USGS Quakes** is a custom integration for Home Assistant that provides real-time earthquake geolocation data based on the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
+
+This integration creates `geo_location` entities in Home Assistant from the USGS GeoJSON feed, filtered by location, radius, and minimum magnitude.
 
 ## Features
 
-- Retrieves earthquake data from USGS feeds.
-- Creates `geo_location` entities with magnitude, location, time, and more.
-- Supports 20 different USGS feed types (e.g., past hour, past day, significant, magnitude thresholds).
-- Filters by radius (km) and minimum magnitude.
-- Configurable through the Home Assistant UI.
-
-## Installation
-
-1. Copy the `usgs_quakes` folder into your `config/custom_components/` directory.
-2. Restart Home Assistant.
-3. Go to **Settings > Devices & Services > Integrations**, click **Add Integration**, and search for **USGS Quakes**.
+- 🔍 Supports all 20 official USGS feed types.
+- 🌐 Filters by geographic radius and minimum magnitude.
+- 📍 Uses Home Assistant's configured location by default.
+- ⚠️ Updates entities every 5 minutes using the cloud-based USGS feed.
+- 🧭 Distance is automatically displayed in kilometers or miles, depending on your region settings.
 
 ## Configuration
 
-All configuration is handled through the UI. You will be prompted to:
+This integration is fully configurable via the Home Assistant UI. Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
 
-- Set your latitude and longitude.
-- Choose a feed type.
-- Define a search radius in kilometers.
-- Set a minimum magnitude.
+### Options
 
-## Feed Types
+- **Latitude / Longitude**: Default to your Home Assistant location.
+- **Radius**: Radius in kilometers from the selected location.
+- **Minimum Magnitude**: Filter out minor quakes below this magnitude.
+- **Feed Type**: Choose the USGS feed type (e.g. `past_day_all_earthquakes`, `summary_significant_week`, etc).
 
-The integration supports the following feed types:
+## Example Entity
 
-- `past_hour_all_earthquakes`
-- `past_hour_significant_earthquakes`
-- `past_day_all_earthquakes`
-- `past_day_significant_earthquakes`
-- `past_day_4.5_earthquakes`
-- `past_day_2.5_earthquakes`
-- `past_day_1.0_earthquakes`
-- `past_week_all_earthquakes`
-- `past_week_significant_earthquakes`
-- `past_week_4.5_earthquakes`
-- `past_week_2.5_earthquakes`
-- `past_week_1.0_earthquakes`
-- `past_month_all_earthquakes`
-- `past_month_significant_earthquakes`
-- `past_month_4.5_earthquakes`
-- `past_month_2.5_earthquakes`
-- `past_month_1.0_earthquakes`
-- `summary_significant_month`
-- `summary_significant_week`
-- `summary_significant_day`
+Once configured, entities will be created dynamically for each detected earthquake:
 
-## Notes
-
-- Entity updates occur every 5 minutes.
-- Events are shown as geolocation entities in Home Assistant.
+```yaml
+geo_location.usgs_quake_m6_7_mexico:
+  source: usgs_quakes
+  latitude: 17.0
+  longitude: -99.0
+  magnitude: 6.7
+  distance: 440.2
+  place: Guerrero, Mexico
+  status: reviewed
+  type: earthquake
+  alert: red
+```
 
 ## Credits
-
-Developed by [Geek-MD](https://github.com/Geek-MD)
+- USGS GeoJSON Feeds
+- Based on Home Assistant’s built-in usgs_earthquakes_feed integration.
+- Custom version developed by @Geek-MD

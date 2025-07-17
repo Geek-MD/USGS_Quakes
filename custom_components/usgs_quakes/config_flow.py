@@ -1,4 +1,5 @@
 """Config flow for USGS Quakes integration."""
+
 from __future__ import annotations
 
 import voluptuous as vol
@@ -6,62 +7,58 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.selector import selector
 
 from .const import (
     CONF_FEED_TYPE,
-    CONF_RADIUS,
     CONF_MINIMUM_MAGNITUDE,
+    CONF_RADIUS,
+    DEFAULT_MINIMUM_MAGNITUDE,
+    DEFAULT_RADIUS,
     DOMAIN,
     VALID_FEED_TYPES,
 )
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for USGS Quakes."""
 
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
+    async def async_step_user(self, user_input=None) -> FlowResult:
         """Handle the initial step."""
-        if user_input is not None:
-            return self.async_create_entry(title="USGS Quakes", data=user_input)
+        errors = {}
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_LATITUDE): float,
-                vol.Required(CONF_LONGITUDE): float,
-                vol.Required(CONF_FEED_TYPE, default="all_earthquakes"):
-                    vol.In(VALID_FEED_TYPES),
-                vol.Required(CONF_RADIUS, default=500.0): float,
-                vol.Required(CONF_MINIMUM_MAGNITUDE, default=0.0): float,
-            }),
+        if user_input is not None:
+            try:
+                latitude = float(user_input[CONF_LATITUDE])
+                longitude = float(user_input[CONF_LONGITUDE])
+                radius = float(user_input[CONF_RADIUS])
+                minimum_magnitude = float(user_input[CONF_MINIMUM_MAGNITUDE])
+                feed_type = user_input[CONF_FEED_TYPE]
+            except (ValueError, TypeError):
+                errors["base"] = "invalid_input"
+            else:
+                return self.async_create_entry(
+                    title="USGS Quakes",
+                    data={
+                        CONF_LATITUDE: latitude,
+                        CONF_LONGITUDE: longitude,
+                        CONF_RADIUS: radius,
+                        CONF_MINIMUM_MAGNITUDE: minimum_magnitude,
+                        CONF_FEED_TYPE: feed_type,
+                    },
+                )
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(CONF_LATITUDE, default=self.hass.config.latitude): vol.Coerce(float),
+                vol.Optional(CONF_LONGITUDE, default=self.hass.config.longitude): vol.Coerce(float),
+                vol.Required(CONF_RADIUS, default=DEFAULT_RADIUS): vol.Coerce(float),
+                vol.Required(CONF_MINIMUM_MAGNITUDE, default=DEFAULT_MINIMUM_MAGNITUDE): vol.Coerce(float),
+                vol.Required(CONF_FEED_TYPE, default=VALID_FEED_TYPES[0]): vol.In(VALID_FEED_TYPES),
+            }
         )
 
-
-class OptionsFlowHandler(config_entries.OptionsFlowWithConfigEntry):
-    """Handle options flow for USGS Quakes."""
-
-    async def async_step_init(self, user_input: dict | None = None) -> FlowResult:
-        """Manage the options."""
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
-
         return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema({
-                vol.Required(
-                    CONF_RADIUS, default=self.config_entry.options.get(CONF_RADIUS, 500.0)
-                ): float,
-                vol.Required(
-                    CONF_MINIMUM_MAGNITUDE,
-                    default=self.config_entry.options.get(CONF_MINIMUM_MAGNITUDE, 0.0),
-                ): float,
-            }),
+            step_id="user", data_schema=data_schema, errors=errors
         )
-
-
-async def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> OptionsFlowHandler:
-    """Get the options flow."""
-    return OptionsFlowHandler(config_entry)
