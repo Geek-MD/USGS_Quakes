@@ -10,6 +10,18 @@
           "feed_type": "Feed Type"
         }
       }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "USGS Quakes Options",
+          "data": {
+            "radius": "Radius (km)",
+            "minimum_magnitude": "Minimum Magnitude",
+            "feed_type": "Feed Type"
+          }
+        }
+      }
     }
   }
 }
