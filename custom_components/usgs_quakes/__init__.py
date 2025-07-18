@@ -13,7 +13,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 from homeassistant.helpers.typing import ConfigType
-from homeassistant.helpers.typing import HomeAssistantType
 
 from .const import (
     DOMAIN,
@@ -23,7 +22,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass: HomeAssistantType, config: ConfigType) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the USGS Quakes integration (legacy config)."""
     return True
 
