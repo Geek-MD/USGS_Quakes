@@ -1,14 +1,19 @@
 {
+  "title": "USGS Quakes",
   "config": {
     "step": {
       "user": {
-        "data": {
-          "latitude": "Latitude",
-          "longitude": "Longitude",
-          "radius": "Radius (km)",
-          "minimum_magnitude": "Minimum Magnitude",
-          "feed_type": "Feed Type"
-        }
+        "title": "Configure USGS Earthquake Feed"
+      }
+    },
+    "error": {
+      "invalid_input": "Invalid input. Please check all fields."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Adjust feed options"
       }
     }
   }
