@@ -1,19 +1,20 @@
 {
+  "title": "USGS Quakes",
   "config": {
     "step": {
       "user": {
-        "title": "Configurar USGS Quakes",
-        "data": {
-          "latitude": "Latitud",
-          "longitude": "Longitud",
-          "radius": "Radio (km)",
-          "minimum_magnitude": "Magnitud mínima",
-          "feed_type": "Tipo de feed"
-        }
+        "title": "Configurar el Feed de Terremotos de USGS"
       }
     },
-    "abort": {
-      "single_instance_allowed": "Solo se permite una instancia."
+    "error": {
+      "invalid_input": "Entrada no válida. Verifique todos los campos."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ajustar opciones del feed"
+      }
     }
   }
 }
