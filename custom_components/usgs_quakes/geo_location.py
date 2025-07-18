@@ -14,6 +14,7 @@ from homeassistant.components.geo_location import GeolocationEvent
 from homeassistant.const import ATTR_TIME, EVENT_HOMEASSISTANT_START, UnitOfLength
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
@@ -28,6 +29,7 @@ SIGNAL_DELETE_ENTITY = "usgs_quakes_delete_{}"
 SIGNAL_UPDATE_ENTITY = "usgs_quakes_update_{}"
 
 SOURCE = "usgs_quakes"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -126,6 +128,17 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._external_id = external_id
         self._remove_signal_delete: Callable[[], None]
         self._remove_signal_update: Callable[[], None]
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info to link this entity to a device in the UI."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, "usgs_quakes")},
+            name="USGS Quakes Feed",
+            manufacturer="USGS",
+            entry_type="service",
+            configuration_url="https://earthquake.usgs.gov/",
+        )
 
     async def async_added_to_hass(self) -> None:
         self._remove_signal_delete = async_dispatcher_connect(
