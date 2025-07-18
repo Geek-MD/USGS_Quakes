@@ -2,16 +2,28 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Quakes"
+        "title": "Configurar USGS Quakes",
+        "data": {
+          "latitude": "Latitud",
+          "longitude": "Longitud",
+          "radius": "Radio (km)",
+          "minimum_magnitude": "Magnitud mínima",
+          "feed_type": "Tipo de feed"
+        }
       }
     },
     "abort": {
-      "single_instance_allowed": "Only one instance is allowed."
+      "single_instance_allowed": "Solo se permite una instancia."
     },
     "options": {
       "step": {
         "init": {
-          "title": "USGS Quakes Options"
+          "title": "Opciones de USGS Quakes",
+          "data": {
+            "radius": "Radio (km)",
+            "minimum_magnitude": "Magnitud mínima",
+            "feed_type": "Tipo de feed"
+          }
         }
       }
     }
