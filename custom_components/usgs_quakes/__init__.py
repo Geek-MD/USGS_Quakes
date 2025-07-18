@@ -4,7 +4,7 @@ from datetime import timedelta
 import logging
 
 from aiohttp import ClientSession
-from aio_geojson_usgs_earthquakes.feed import USGSEarthquakeFeed
+from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
 from aio_geojson_client.feed_manager import FeedManager
 
 from homeassistant.config_entries import ConfigEntry
@@ -12,14 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 
-from .const import (
-    DOMAIN,
-    CONF_LATITUDE,
-    CONF_LONGITUDE,
-    CONF_RADIUS,
-    CONF_MINIMUM_MAGNITUDE,
-    CONF_FEED_TYPE,
-)
+from .const import DOMAIN
 
 PLATFORMS: list[str] = ["geo_location"]
 
@@ -30,13 +23,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up USGS Quakes from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    latitude = entry.data[CONF_LATITUDE]
-    longitude = entry.data[CONF_LONGITUDE]
-
-    # Read from options if available; fall back to data
-    radius = entry.options.get(CONF_RADIUS, entry.data[CONF_RADIUS])
-    minimum_magnitude = entry.options.get(CONF_MINIMUM_MAGNITUDE, entry.data[CONF_MINIMUM_MAGNITUDE])
-    feed_type = entry.options.get(CONF_FEED_TYPE, entry.data[CONF_FEED_TYPE])
+    latitude = entry.data["latitude"]
+    longitude = entry.data["longitude"]
+    radius = entry.data["radius"]
+    minimum_magnitude = entry.data["minimum_magnitude"]
+    feed_type = entry.data["feed_type"]
 
     session: ClientSession = async_get_clientsession(hass)
 
