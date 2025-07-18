@@ -4,7 +4,7 @@ from datetime import timedelta
 import logging
 
 from aiohttp import ClientSession
-from aio_geojson_usgs_earthquakes import USGSEarthquakeFeed
+from aio_geojson_usgs_earthquakes import UsgsEarthquakeHazardsProgramFeed as USGSEarthquakeFeed
 from aio_geojson_client.feed_manager import FeedManager
 
 from homeassistant.config_entries import ConfigEntry
