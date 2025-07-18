@@ -33,3 +33,31 @@ VALID_FEED_TYPES = [
     "summary_significant_week",
     "summary_significant_day",
 ]
+
+FEED_TYPE_FRIENDLY_NAMES = {
+    "past_hour_all_earthquakes": "Past Hour - All Earthquakes",
+    "past_hour_significant_earthquakes": "Past Hour - Significant",
+    "past_day_all_earthquakes": "Past Day - All Earthquakes",
+    "past_day_significant_earthquakes": "Past Day - Significant",
+    "past_day_4.5_earthquakes": "Past Day - M4.5+",
+    "past_day_2.5_earthquakes": "Past Day - M2.5+",
+    "past_day_1.0_earthquakes": "Past Day - M1.0+",
+    "past_week_all_earthquakes": "Past Week - All Earthquakes",
+    "past_week_significant_earthquakes": "Past Week - Significant",
+    "past_week_4.5_earthquakes": "Past Week - M4.5+",
+    "past_week_2.5_earthquakes": "Past Week - M2.5+",
+    "past_week_1.0_earthquakes": "Past Week - M1.0+",
+    "past_month_all_earthquakes": "Past Month - All Earthquakes",
+    "past_month_significant_earthquakes": "Past Month - Significant",
+    "past_month_4.5_earthquakes": "Past Month - M4.5+",
+    "past_month_2.5_earthquakes": "Past Month - M2.5+",
+    "past_month_1.0_earthquakes": "Past Month - M1.0+",
+    "summary_significant_month": "Summary - Month",
+    "summary_significant_week": "Summary - Week",
+    "summary_significant_day": "Summary - Day",
+}
+
+# Reverse map for lookup in UI → ID
+FRIENDLY_NAME_TO_FEED_TYPE = {
+    v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()
+}
