@@ -8,7 +8,7 @@
     "aio-geojson-client==0.12"
   ],
   "dependencies": [],
-  "integration_type": "service",
+  "integration_type": "hub",
   "loggers": ["aio_geojson_usgs_earthquakes"],
   "quality_scale": "legacy",
   "codeowners": ["@Geek-MD"],
