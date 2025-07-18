@@ -13,17 +13,27 @@ This integration creates `geo_location` entities in Home Assistant from the USGS
 - 📍 Uses Home Assistant's configured location by default.
 - ⚠️ Updates entities every 5 minutes using the cloud-based USGS feed.
 - 🧭 Distance is automatically displayed in kilometers or miles, depending on your region settings.
+- 🔧 Supports reconfiguration via UI using `Options Flow`.
 
 ## Configuration
 
-This integration is fully configurable via the Home Assistant UI. Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
+This integration is fully configurable via the Home Assistant UI.  
+Go to **Settings > Devices & Services > Add Integration** and search for **USGS Quakes**.
 
-### Options
+### Initial Setup
 
-- **Latitude / Longitude**: Default to your Home Assistant location.
+- **Latitude / Longitude**: Defaults to your Home Assistant configured location.
 - **Radius**: Radius in kilometers from the selected location.
 - **Minimum Magnitude**: Filter out minor quakes below this magnitude.
 - **Feed Type**: Choose the USGS feed type (e.g. `past_day_all_earthquakes`, `summary_significant_week`, etc).
+
+### Reconfiguration (Options Flow)
+
+After the initial setup, you can update the following values via the integration settings:
+
+- **Radius**
+- **Minimum Magnitude**
+- **Feed Type**
 
 ## Example Entity
 
@@ -43,6 +53,7 @@ geo_location.usgs_quake_m6_7_mexico:
 ```
 
 ## Credits
-- USGS GeoJSON Feeds
-- Based on Home Assistant’s built-in usgs_earthquakes_feed integration.
-- Custom version developed by @Geek-MD
+
+- [USGS GeoJSON Feeds](https://earthquake.usgs.gov/earthquakes/feed/)
+- Based on Home Assistant’s built-in `usgs_earthquakes_feed` integration.
+- Custom version developed by [@Geek-MD](https://github.com/Geek-MD)
