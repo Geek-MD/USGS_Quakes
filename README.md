@@ -54,6 +54,6 @@ geo_location.usgs_quake_m6_7_mexico:
 
 ## Credits
 
-- [USGS GeoJSON Feeds](https://earthquake.usgs.gov/earthquakes/feed/)
-- Based on Home Assistant’s built-in `usgs_earthquakes_feed` integration.
-- Custom version developed by [@Geek-MD](https://github.com/Geek-MD)
+This integration is based on the official [`usgs_earthquakes_feed`](https://github.com/home-assistant/core/tree/dev/homeassistant/components/usgs_earthquakes_feed) integration from the Home Assistant Core repository.
+
+Additional features, such as options flow and entity-device linking, have been added and adapted by [@Geek-MD](https://github.com/Geek-MD).
