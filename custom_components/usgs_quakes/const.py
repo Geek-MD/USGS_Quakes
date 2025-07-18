@@ -9,6 +9,8 @@ CONF_LONGITUDE = "longitude"
 DEFAULT_RADIUS = 50.0
 DEFAULT_MINIMUM_MAGNITUDE = 0.0
 
+PLATFORMS = ["geo_location"]
+
 VALID_FEED_TYPES = [
     "past_hour_all_earthquakes",
     "past_hour_significant_earthquakes",
