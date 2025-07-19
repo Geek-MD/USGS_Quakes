@@ -1,11 +1,9 @@
 """Support for USGS Quakes geolocation integration."""
-
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta
 from typing import Any, Callable
-
-import logging
 
 from aio_geojson_usgs_earthquakes import UsgsEarthquakeHazardsProgramFeedManager
 from aio_geojson_usgs_earthquakes.feed_entry import UsgsEarthquakeHazardsProgramFeedEntry
@@ -14,7 +12,11 @@ from homeassistant.components.geo_location import GeolocationEvent
 from homeassistant.const import ATTR_TIME, EVENT_HOMEASSISTANT_START, UnitOfLength
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.dispatcher import (
+    async_dispatcher_connect,
+    async_dispatcher_send,
+)
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 
@@ -29,6 +31,7 @@ SIGNAL_UPDATE_ENTITY = "usgs_quakes_update_{}"
 
 SOURCE = "usgs_quakes"
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry,
@@ -36,11 +39,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up USGS Quakes platform."""
     data = config_entry.data
+    options = config_entry.options
 
-    coordinates = (data["latitude"], data["longitude"])
-    feed_type = data["feed_type"]
-    radius = data["radius"]
-    minimum_magnitude = data["minimum_magnitude"]
+    coordinates = (
+        data.get("latitude"),
+        data.get("longitude"),
+    )
+    feed_type = options.get("feed_type", data.get("feed_type"))
+    radius = options.get("radius", data.get("radius"))
+    minimum_magnitude = options.get("minimum_magnitude", data.get("minimum_magnitude"))
 
     manager = UsgsQuakesFeedEntityManager(
         hass,
@@ -55,7 +62,10 @@ async def async_setup_entry(
     async def start_feed_manager(event=None):
         await manager.async_update()
 
+    # Iniciar actualización una vez que HA haya arrancado
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
+
+    # Guardar el manager para referencia futura
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {"manager": manager}
 
 
@@ -127,6 +137,26 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._remove_signal_delete: Callable[[], None]
         self._remove_signal_update: Callable[[], None]
 
+        # Inicialización explícita de atributos extra
+        self._place = None
+        self._magnitude = None
+        self._time = None
+        self._updated = None
+        self._status = None
+        self._type = None
+        self._alert = None
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info to link this entity to a device in the UI."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, "usgs_quakes")},
+            name="USGS Quakes Feed",
+            manufacturer="USGS",
+            entry_type="service",
+            configuration_url="https://earthquake.usgs.gov/",
+        )
+
     async def async_added_to_hass(self) -> None:
         self._remove_signal_delete = async_dispatcher_connect(
             self.hass, SIGNAL_DELETE_ENTITY.format(self._external_id), self._delete_callback
@@ -178,5 +208,5 @@ class UsgsQuakesEvent(GeolocationEvent):
                 ("type", self._type),
                 ("alert", self._alert),
             )
-            if value or isinstance(value, bool)
+            if value is not None
         }
