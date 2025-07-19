@@ -34,6 +34,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Forward config to the platform(s)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Register listener to reload if options are updated
+    entry.async_on_unload(entry.add_update_listener(_update_listener))
+
     return True
 
 
@@ -45,3 +48,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id, None)
 
     return unload_ok
+
+
+async def _update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update by reloading the entry."""
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_get_options_flow(config_entry: ConfigEntry):
+    from .options_flow import OptionsFlowHandler
+    return OptionsFlowHandler(config_entry)
