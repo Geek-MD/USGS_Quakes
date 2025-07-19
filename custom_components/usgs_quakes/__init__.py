@@ -53,3 +53,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id, None)
 
     return unload_ok
+
+async def async_get_options_flow(config_entry: ConfigEntry):
+    from .options_flow import OptionsFlowHandler
+    return OptionsFlowHandler(config_entry)
