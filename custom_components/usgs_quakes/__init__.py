@@ -54,6 +54,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return unload_ok
 
+
 async def async_get_options_flow(config_entry: ConfigEntry):
+    """Return the options flow handler."""
     from .options_flow import OptionsFlowHandler
     return OptionsFlowHandler(config_entry)
