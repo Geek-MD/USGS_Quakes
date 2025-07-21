@@ -13,6 +13,19 @@ from .const import DOMAIN
 SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_quakes_latest"
 
+async def async_setup_entry(hass, entry, async_add_entities):
+    """Set up the USGS Quakes Latest sensor entity."""
+    data = hass.data[DOMAIN].get(entry.entry_id, {})
+    events = data.get("events", [])
+    device_info = DeviceInfo(
+        identifiers={(DOMAIN, "usgs_quakes")},
+        name="USGS Quakes",
+        manufacturer="USGS",
+        entry_type="service",
+        configuration_url="https://earthquake.usgs.gov/",
+    )
+    async_add_entities([UsgsQuakesLatestSensor(events, device_info)], True)
+
 class UsgsQuakesLatestSensor(SensorEntity):
     """Sensor to store the latest USGS quake events."""
 
@@ -27,8 +40,6 @@ class UsgsQuakesLatestSensor(SensorEntity):
     def __init__(self, events: list[dict[str, Any]], device_info: DeviceInfo) -> None:
         self._events = events or []
         self._attr_device_info = device_info
-
-        # Set state as last event time, or None
         self._attr_native_value = self._events[-1]["time"] if self._events else None
 
     @property
