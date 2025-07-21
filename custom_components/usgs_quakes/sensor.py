@@ -1,99 +1,84 @@
-"""Sensor to track the latest USGS earthquake events."""
+"""Sensor: USGS Quakes latest events."""
 from __future__ import annotations
 
 from datetime import datetime
 import logging
-from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ATTRIBUTION
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set up the USGS Quakes latest events sensor."""
-    feed_manager = hass.data[DOMAIN][entry.entry_id]["feed_manager"]
-    sensor = UsgsQuakesLatestSensor(feed_manager, entry.entry_id)
-    async_add_entities([sensor])
+    """Set up the USGS Quakes latest sensor."""
+    data = hass.data[DOMAIN].get(entry.entry_id, {})
+    feed_manager = data.get("feed_manager")
 
+    if not feed_manager:
+        _LOGGER.error("Feed manager not found for USGS Quakes sensor (entry_id: %s)", entry.entry_id)
+        return
 
-class UsgsQuakesLatestSensor(SensorEntity, RestoreEntity):
-    """Sensor that stores the latest USGS earthquakes."""
+    async_add_entities([UsgsQuakesLatestSensor(feed_manager)], True)
+
+class UsgsQuakesLatestSensor(SensorEntity):
+    """Sensor that stores the latest USGS earthquake events."""
 
     _attr_has_entity_name = True
-    _attr_name = "Latest Earthquakes"
-    _attr_icon = "mdi:earth"
-    _attr_attribution = "Data provided by the USGS Earthquake Hazards Program"
-    _attr_native_unit_of_measurement = None
+    _attr_name = "USGS Quakes Latest"
+    _attr_unique_id = "usgs_quakes_latest"
+    _attr_icon = "mdi:pulse"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
 
-    def __init__(self, feed_manager, entry_id: str) -> None:
-        """Initialize the sensor."""
-        self._entry_id = entry_id
+    def __init__(self, feed_manager):
         self._feed_manager = feed_manager
-        self._attr_unique_id = f"{entry_id}_latest"
-        self._last_event_ids: set[str] = set()
+        self._latest_event_time = None
+        self._events = []
 
-    async def async_added_to_hass(self) -> None:
-        """Handle when entity is added to hass."""
-        await super().async_added_to_hass()
-        self._feed_manager.register_listener(self._update_from_feed)
+    async def async_update(self):
+        # Get current feed entries from the feed_manager
+        entries = list(self._feed_manager.feed_entries.values())
+        if not entries:
+            return
 
-    async def async_will_remove_from_hass(self) -> None:
-        """Handle when entity will be removed."""
-        self._feed_manager.unregister_listener(self._update_from_feed)
+        # Sort by time, filter by configured min_magnitude if present
+        entries.sort(key=lambda e: e.time or datetime.min, reverse=True)
 
-    def _update_from_feed(self) -> None:
-        """Process the feed update from the manager."""
-        new_events = []
+        # Only latest 10 events
+        self._events = []
         seen_ids = set()
-        entries = self._feed_manager.last_entries
-
         for entry in entries:
-            event_id = entry.external_id
-            seen_ids.add(event_id)
+            # Avoid duplicates by external_id
+            if entry.external_id in seen_ids:
+                continue
+            seen_ids.add(entry.external_id)
+            self._events.append({
+                "external_id": entry.external_id,
+                "title": entry.title,
+                "magnitude": entry.magnitude,
+                "place": entry.place,
+                "time": entry.time.isoformat() if entry.time else None,
+                "updated": entry.updated.isoformat() if entry.updated else None,
+                "coordinates": entry.coordinates,
+            })
+            if len(self._events) == 10:
+                break
 
-            # Solo agregar si es un nuevo evento
-            if event_id not in self._last_event_ids:
-                new_events.append({
-                    "title": entry.title,
-                    "magnitude": entry.magnitude,
-                    "latitude": entry.latitude,
-                    "longitude": entry.longitude,
-                    "distance": entry.distance,
-                    "time": entry.publication_date.isoformat(),
-                    "id": event_id,
-                })
-
-        if new_events:
-            # Mantener máximo 10 eventos
-            combined = new_events + [
-                e for e in getattr(self, "events", []) if e["id"] not in {e["id"] for e in new_events}
-            ]
-            self.events = combined[:10]
-            self._last_event_ids = seen_ids
-            if self.events:
-                latest = max(self.events, key=lambda x: x["time"])
-                self._attr_native_value = latest["time"]
-            else:
-                self._attr_native_value = None
-
-            self.async_write_ha_state()
+        if self._events:
+            self._latest_event_time = self._events[0]["time"]
+            self._attr_native_value = self._latest_event_time
+        else:
+            self._attr_native_value = None
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return attributes with recent events."""
+    def extra_state_attributes(self):
         return {
-            ATTR_ATTRIBUTION: self._attr_attribution,
-            "events": getattr(self, "events", []),
+            "events": self._events,
+            "attribution": "USGS Earthquake Hazards Program",
         }
