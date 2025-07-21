@@ -9,8 +9,14 @@ CONF_LONGITUDE = "longitude"
 DEFAULT_RADIUS = 50.0
 DEFAULT_MINIMUM_MAGNITUDE = 0.0
 
-PLATFORMS = ["geo_location"]
+# Plataformas activadas por la integración
+PLATFORMS = ["geo_location", "sensor"]
 
+# Claves de almacenamiento
+STORAGE_KEY = "usgs_quakes_events"
+STORAGE_VERSION = 1
+
+# Tipos de feed válidos
 VALID_FEED_TYPES = [
     "past_hour_all_earthquakes",
     "past_hour_significant_earthquakes",
@@ -34,6 +40,7 @@ VALID_FEED_TYPES = [
     "summary_significant_day",
 ]
 
+# Mapeo entre ID y nombre amigable
 FEED_TYPE_FRIENDLY_NAMES = {
     "past_hour_all_earthquakes": "Past Hour - All Earthquakes",
     "past_hour_significant_earthquakes": "Past Hour - Significant",
@@ -57,7 +64,7 @@ FEED_TYPE_FRIENDLY_NAMES = {
     "summary_significant_day": "Summary - Day",
 }
 
-# Reverse map for lookup in UI → ID
+# Reverso para buscar ID desde nombre amigable
 FRIENDLY_NAME_TO_FEED_TYPE = {
     v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()
 }
