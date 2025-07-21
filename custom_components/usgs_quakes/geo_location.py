@@ -24,18 +24,12 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=5)
+
 SIGNAL_DELETE_ENTITY = "usgs_quakes_delete_{}"
 SIGNAL_UPDATE_ENTITY = "usgs_quakes_update_{}"
+
 SOURCE = "usgs_quakes"
 
-# ---- NUEVO: Bloque device_info global para reutilizar ----
-USGS_DEVICE_INFO = DeviceInfo(
-    identifiers={(DOMAIN, "usgs_quakes")},
-    name="USGS Quakes Feed",
-    manufacturer="USGS",
-    entry_type="service",
-    configuration_url="https://earthquake.usgs.gov/",
-)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -50,7 +44,6 @@ async def async_setup_entry(
         data.get("latitude"),
         data.get("longitude"),
     )
-
     feed_type = options.get("feed_type", data.get("feed_type"))
     radius = options.get("radius", data.get("radius"))
     minimum_magnitude = options.get("minimum_magnitude", data.get("minimum_magnitude"))
@@ -62,6 +55,7 @@ async def async_setup_entry(
         feed_type,
         radius,
         minimum_magnitude,
+        config_entry.entry_id,
     )
     await manager.async_init()
 
@@ -69,7 +63,11 @@ async def async_setup_entry(
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
-    hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {"manager": manager}
+    hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {
+        "manager": manager,
+        "events": [],  # inicializa para el sensor
+    }
+
 
 class UsgsQuakesFeedEntityManager:
     """Manages entities from USGS feed."""
@@ -82,10 +80,13 @@ class UsgsQuakesFeedEntityManager:
         feed_type: str,
         radius: float,
         minimum_magnitude: float,
+        entry_id: str,
     ) -> None:
         self._hass = hass
         self._async_add_entities = async_add_entities
         session = async_get_clientsession(hass)
+        self._entry_id = entry_id
+        self._filter_minimum_magnitude = minimum_magnitude
 
         self._feed_manager = UsgsEarthquakeHazardsProgramFeedManager(
             session,
@@ -107,9 +108,31 @@ class UsgsQuakesFeedEntityManager:
         )
         _LOGGER.debug("Feed entity manager initialized")
 
+        # Primer update inmediato
+        await self.async_update()
+
     async def async_update(self) -> None:
         await self._feed_manager.update()
         _LOGGER.debug("Feed entity manager updated")
+
+        # Guardar eventos recientes (filtrados y limitados)
+        latest_events = []
+        for entry in self._feed_manager.feed_entries.values():
+            if entry.magnitude is None or entry.magnitude < self._filter_minimum_magnitude:
+                continue
+            latest_events.append({
+                "id": entry.external_id,
+                "title": entry.title,
+                "place": entry.place,
+                "magnitude": entry.magnitude,
+                "time": entry.time,
+                "latitude": entry.coordinates[0],
+                "longitude": entry.coordinates[1],
+                "url": getattr(entry, "url", None),
+            })
+        latest_events.sort(key=lambda e: e["time"], reverse=True)
+        latest_events = latest_events[:10]
+        self._hass.data[DOMAIN][self._entry_id]["events"] = latest_events
 
     def get_entry(self, external_id: str) -> UsgsEarthquakeHazardsProgramFeedEntry | None:
         return self._feed_manager.feed_entries.get(external_id)
@@ -123,6 +146,7 @@ class UsgsQuakesFeedEntityManager:
 
     async def _remove_entity(self, external_id: str) -> None:
         async_dispatcher_send(self._hass, SIGNAL_DELETE_ENTITY.format(external_id))
+
 
 class UsgsQuakesEvent(GeolocationEvent):
     """Represents a USGS earthquake event."""
@@ -146,7 +170,17 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._status = None
         self._type = None
         self._alert = None
-        self._attr_device_info = USGS_DEVICE_INFO  # <-- asociar al dispositivo global
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info to link this entity to a device in the UI."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, "usgs_quakes")},
+            name="USGS Quakes Feed",
+            manufacturer="USGS",
+            entry_type="service",
+            configuration_url="https://earthquake.usgs.gov/",
+        )
 
     async def async_added_to_hass(self) -> None:
         self._remove_signal_delete = async_dispatcher_connect(
