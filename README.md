@@ -8,6 +8,8 @@
 
 - Fetches earthquake data directly from USGS GeoJSON feeds.
 - Creates `geo_location` entities for each event.
+- Creates a `sensor.usgs_quakes_latest` datetime sensor showing the latest event time.
+- Stores recent events as sensor attributes (filtered by configured magnitude).
 - Filters by:
   - Location (latitude, longitude, radius)
   - Minimum magnitude
@@ -55,6 +57,19 @@ A total of 20 USGS feed types are supported, including:
 - Filtered by magnitude (1.0+, 2.5+, 4.5+)
 
 See [USGS GeoJSON Documentation](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) for details.
+
+## Sensor: `sensor.usgs_quakes_latest`
+
+This integration creates a datetime sensor reflecting the latest detected event.
+
+- **State**: Date and time of the most recent event (in ISO format).
+- **Attribute `events`**: List of up to 10 new events, each including:
+  - `id`
+  - `magnitude`
+  - `place`
+  - `time` (UTC)
+
+This helps track and trigger automations based on recent seismic activity.
 
 ## Known Issues
 
