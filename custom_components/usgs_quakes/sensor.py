@@ -33,7 +33,6 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self._attr_native_value = None
 
     async def async_added_to_hass(self):
-        # Listen for updates from geo_location
         self._unsub_dispatcher = async_dispatcher_connect(
             self.hass,
             f"{DOMAIN}_events_updated_{self._entry_id}",
@@ -59,3 +58,14 @@ class UsgsQuakesLatestSensor(SensorEntity):
         return {
             "events": self._events
         }
+
+
+async def async_setup_entry(hass, entry, async_add_entities):
+    device_info = DeviceInfo(
+        identifiers={(DOMAIN, "usgs_quakes")},
+        name="USGS Quakes Feed",
+        manufacturer="USGS",
+        entry_type="service",
+        configuration_url="https://earthquake.usgs.gov/",
+    )
+    async_add_entities([UsgsQuakesLatestSensor(hass, entry.entry_id, device_info)], True)
