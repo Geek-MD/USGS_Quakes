@@ -37,25 +37,17 @@ async def async_setup_entry(
 ) -> None:
     """Set up USGS Quakes platform."""
     data = config_entry.data
-    options = config_entry.options
+    entry_id = config_entry.entry_id
 
-    coordinates = (
-        data.get("latitude"),
-        data.get("longitude"),
-    )
-    feed_type = options.get("feed_type", data.get("feed_type"))
-    radius = options.get("radius", data.get("radius"))
-    minimum_magnitude = options.get("minimum_magnitude", data.get("minimum_magnitude"))
-
-    # Inicialización segura de hass.data[DOMAIN][entry_id]
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN].setdefault(config_entry.entry_id, {})
-    hass.data[DOMAIN][config_entry.entry_id].setdefault("events", [])
+    coordinates = (data["latitude"], data["longitude"])
+    feed_type = data["feed_type"]
+    radius = data["radius"]
+    minimum_magnitude = data["minimum_magnitude"]
 
     manager = UsgsQuakesFeedEntityManager(
         hass,
         async_add_entities,
-        config_entry.entry_id,
+        entry_id,
         coordinates,
         feed_type,
         radius,
@@ -67,8 +59,7 @@ async def async_setup_entry(
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
-    # Guarda el manager para acceso desde otras plataformas si lo necesitas
-    hass.data[DOMAIN][config_entry.entry_id]["feed_manager"] = manager
+    hass.data.setdefault(DOMAIN, {})[entry_id] = {"manager": manager, "events": []}
 
 class UsgsQuakesFeedEntityManager:
     """Manages entities from USGS feed."""
@@ -99,7 +90,8 @@ class UsgsQuakesFeedEntityManager:
             filter_minimum_magnitude=minimum_magnitude,
         )
 
-        self._known_event_ids = set()  # Para detectar eventos nuevos
+        self._event_ids = set()
+        self._latest_events: list[dict[str, Any]] = []
 
     async def async_init(self) -> None:
         async def update(event_time: datetime) -> None:
@@ -110,50 +102,52 @@ class UsgsQuakesFeedEntityManager:
         )
         _LOGGER.debug("Feed entity manager initialized")
 
+        # First update
+        await self.async_update()
+
     async def async_update(self) -> None:
         await self._feed_manager.update()
-        _LOGGER.debug("Feed entity manager updated")
-
-        # --- Aquí actualizamos el listado de eventos para el sensor ---
-        all_entries = list(self._feed_manager.feed_entries.values())
-        # Nos aseguramos que el dict esté inicializado
-        self._hass.data.setdefault(DOMAIN, {})
-        self._hass.data[DOMAIN].setdefault(self._entry_id, {})
-        if "events" not in self._hass.data[DOMAIN][self._entry_id]:
-            self._hass.data[DOMAIN][self._entry_id]["events"] = []
-
-        # Filtra y guarda SOLO los 10 más recientes, ordenados por fecha
-        all_entries_sorted = sorted(all_entries, key=lambda e: e.time, reverse=True)
-        latest_events = []
-        latest_event_ids = set()
-        for entry in all_entries_sorted:
-            event = {
-                "id": entry.external_id,
-                "title": entry.title,
-                "magnitude": entry.magnitude,
-                "place": entry.place,
-                "time": entry.time,
-                "latitude": entry.coordinates[0],
-                "longitude": entry.coordinates[1],
-                "attribution": entry.attribution,
-                "updated": entry.updated,
-                "status": entry.status,
-                "type": entry.type,
-                "alert": entry.alert,
-            }
-            # Agrega solo eventos nuevos
-            if event["id"] not in self._known_event_ids:
-                latest_events.append(event)
-                latest_event_ids.add(event["id"])
-            if len(latest_events) >= 10:
-                break
-
-        # Actualiza la lista de eventos y marca como conocidos
-        if latest_events:
-            self._hass.data[DOMAIN][self._entry_id]["events"].extend(latest_events)
-            self._known_event_ids.update(latest_event_ids)
-            # Limita la lista total a los últimos 10
-            self._hass.data[DOMAIN][self._entry_id]["events"] = self._hass.data[DOMAIN][self._entry_id]["events"][-10:]
+        # Rebuild latest events list with only new events
+        new_events = []
+        for entry in self._feed_manager.feed_entries.values():
+            event_id = entry.external_id
+            if event_id not in self._event_ids:
+                # Prepare dict with minimal data for the sensor
+                new_events.append({
+                    "id": event_id,
+                    "title": entry.title,
+                    "place": entry.place,
+                    "magnitude": entry.magnitude,
+                    "time": entry.time,
+                    "latitude": entry.coordinates[0],
+                    "longitude": entry.coordinates[1],
+                    "url": getattr(entry, "url", None),
+                })
+                self._event_ids.add(event_id)
+        if not self._latest_events and self._feed_manager.feed_entries:
+            # Initial load: store all
+            self._latest_events = [
+                {
+                    "id": entry.external_id,
+                    "title": entry.title,
+                    "place": entry.place,
+                    "magnitude": entry.magnitude,
+                    "time": entry.time,
+                    "latitude": entry.coordinates[0],
+                    "longitude": entry.coordinates[1],
+                    "url": getattr(entry, "url", None),
+                }
+                for entry in self._feed_manager.feed_entries.values()
+            ]
+            self._event_ids.update(entry.external_id for entry in self._feed_manager.feed_entries.values())
+        else:
+            self._latest_events.extend(new_events)
+        # Limit to last 10 events for the sensor
+        self._latest_events = self._latest_events[-10:]
+        # Store in hass.data and notify the sensor
+        self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+        async_dispatcher_send(self._hass, f"{DOMAIN}_events_updated_{self._entry_id}")
+        _LOGGER.debug("Updated latest events for sensor, count=%d", len(self._latest_events))
 
     def get_entry(self, external_id: str) -> UsgsEarthquakeHazardsProgramFeedEntry | None:
         return self._feed_manager.feed_entries.get(external_id)
@@ -182,7 +176,6 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._remove_signal_delete: Callable[[], None]
         self._remove_signal_update: Callable[[], None]
 
-        # Inicialización explícita de atributos extra
         self._place = None
         self._magnitude = None
         self._time = None
