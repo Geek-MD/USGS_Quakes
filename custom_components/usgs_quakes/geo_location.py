@@ -27,9 +27,10 @@ SCAN_INTERVAL = timedelta(minutes=5)
 
 SIGNAL_DELETE_ENTITY = "usgs_quakes_delete_{}"
 SIGNAL_UPDATE_ENTITY = "usgs_quakes_update_{}"
-SIGNAL_EVENTS_UPDATED = "{}_events_updated_{{}}".format(DOMAIN)
+SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
 SOURCE = "usgs_quakes"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -37,15 +38,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up USGS Quakes platform."""
-    # Asegura la estructura en hass.data
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
-    if config_entry.entry_id not in hass.data[DOMAIN]:
-        hass.data[DOMAIN][config_entry.entry_id] = {}
-    # Inicializa el storage de eventos si no existe
-    hass.data[DOMAIN][config_entry.entry_id].setdefault("events", [])
-
     data = config_entry.data
+    entry_id = config_entry.entry_id
     options = config_entry.options
 
     coordinates = (
@@ -60,19 +54,21 @@ async def async_setup_entry(
     manager = UsgsQuakesFeedEntityManager(
         hass,
         async_add_entities,
-        config_entry.entry_id,
         coordinates,
         feed_type,
         radius,
         minimum_magnitude,
+        entry_id,
     )
+    hass.data.setdefault(DOMAIN, {})[entry_id] = {}
+    hass.data[DOMAIN][entry_id]["feed_manager"] = manager
     await manager.async_init()
 
     async def start_feed_manager(event=None):
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
-    hass.data[DOMAIN][config_entry.entry_id]["manager"] = manager
+
 
 class UsgsQuakesFeedEntityManager:
     """Manages entities from USGS feed."""
@@ -81,11 +77,11 @@ class UsgsQuakesFeedEntityManager:
         self,
         hass: HomeAssistant,
         async_add_entities: AddEntitiesCallback,
-        entry_id: str,
         coordinates: tuple[float, float],
         feed_type: str,
         radius: float,
         minimum_magnitude: float,
+        entry_id: str,
     ) -> None:
         self._hass = hass
         self._async_add_entities = async_add_entities
@@ -102,7 +98,6 @@ class UsgsQuakesFeedEntityManager:
             filter_radius=radius,
             filter_minimum_magnitude=minimum_magnitude,
         )
-        self._latest_event_ids: set = set()
         self._latest_events: list[dict[str, Any]] = []
 
     async def async_init(self) -> None:
@@ -113,45 +108,35 @@ class UsgsQuakesFeedEntityManager:
             self._hass, update, SCAN_INTERVAL, cancel_on_shutdown=True
         )
         _LOGGER.debug("Feed entity manager initialized")
-
-        # Primer update inicial
-        await self.async_update()
+        await self.async_update()  # Ensure first fetch on init
 
     async def async_update(self) -> None:
         await self._feed_manager.update()
         _LOGGER.debug("Feed entity manager updated")
 
-        # Actualiza los eventos nuevos
+        # Build a list of all current events
         latest_events = []
         for entry in self._feed_manager.feed_entries.values():
-            evt = {
-                "external_id": entry.external_id,
+            latest_events.append({
+                "id": entry.external_id,
+                "title": entry.title,
                 "place": entry.place,
                 "magnitude": entry.magnitude,
                 "time": entry.time,
-                "latitude": entry.coordinates[0],
-                "longitude": entry.coordinates[1],
-                "attribution": entry.attribution,
-            }
-            latest_events.append(evt)
-        latest_events.sort(key=lambda e: e["time"])  # Ordena por fecha ascendente
+                "updated": entry.updated,
+                "coordinates": entry.coordinates,
+                "distance": entry.distance_to_home,
+            })
 
-        # Detecta nuevos eventos
-        prev_ids = set(e["external_id"] for e in self._hass.data[DOMAIN][self._entry_id]["events"])
-        new_events = [e for e in latest_events if e["external_id"] not in prev_ids]
-        # Inicializa con todos si nunca ha habido
-        if not self._hass.data[DOMAIN][self._entry_id]["events"]:
-            self._hass.data[DOMAIN][self._entry_id]["events"] = latest_events[-10:]
-        else:
-            self._hass.data[DOMAIN][self._entry_id]["events"].extend(new_events)
-            # Limita a los últimos 10 eventos
-            self._hass.data[DOMAIN][self._entry_id]["events"] = self._hass.data[DOMAIN][self._entry_id]["events"][-10:]
+        # Sort events by time (most recent last)
+        latest_events.sort(key=lambda e: e["time"])
+        self._latest_events = latest_events
 
-        # Notifica a sensor.py
-        async_dispatcher_send(
-            self._hass,
-            SIGNAL_EVENTS_UPDATED.format(self._entry_id)
-        )
+        # Share with other platforms (sensor)
+        self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+
+        # Dispatch update for sensor
+        async_dispatcher_send(self._hass, SIGNAL_EVENTS_UPDATED.format(self._entry_id))
 
     def get_entry(self, external_id: str) -> UsgsEarthquakeHazardsProgramFeedEntry | None:
         return self._feed_manager.feed_entries.get(external_id)
@@ -180,8 +165,6 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._external_id = external_id
         self._remove_signal_delete: Callable[[], None]
         self._remove_signal_update: Callable[[], None]
-
-        # Inicialización explícita de atributos extra
         self._place = None
         self._magnitude = None
         self._time = None
@@ -192,7 +175,6 @@ class UsgsQuakesEvent(GeolocationEvent):
 
     @property
     def device_info(self) -> DeviceInfo:
-        """Return device info to link this entity to a device in the UI."""
         return DeviceInfo(
             identifiers={(DOMAIN, "usgs_quakes")},
             name="USGS Quakes Feed",
