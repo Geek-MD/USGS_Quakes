@@ -14,6 +14,24 @@ from .const import DOMAIN
 SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_quakes_latest"
 
+async def async_setup_entry(hass, entry, async_add_entities):
+    # Asegura la estructura en hass.data
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    if entry.entry_id not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][entry.entry_id] = {}
+    # Inicializa el storage de eventos si no existe
+    hass.data[DOMAIN][entry.entry_id].setdefault("events", [])
+
+    device_info = DeviceInfo(
+        identifiers={(DOMAIN, "usgs_quakes")},
+        name="USGS Quakes Feed",
+        manufacturer="USGS",
+        entry_type="service",
+        configuration_url="https://earthquake.usgs.gov/",
+    )
+    async_add_entities([UsgsQuakesLatestSensor(hass, entry.entry_id, device_info)], True)
+
 class UsgsQuakesLatestSensor(SensorEntity):
     """Sensor to store the latest USGS quake events."""
 
@@ -33,6 +51,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self._attr_native_value = None
 
     async def async_added_to_hass(self):
+        # Listen for updates from geo_location
         self._unsub_dispatcher = async_dispatcher_connect(
             self.hass,
             f"{DOMAIN}_events_updated_{self._entry_id}",
@@ -58,14 +77,3 @@ class UsgsQuakesLatestSensor(SensorEntity):
         return {
             "events": self._events
         }
-
-
-async def async_setup_entry(hass, entry, async_add_entities):
-    device_info = DeviceInfo(
-        identifiers={(DOMAIN, "usgs_quakes")},
-        name="USGS Quakes Feed",
-        manufacturer="USGS",
-        entry_type="service",
-        configuration_url="https://earthquake.usgs.gov/",
-    )
-    async_add_entities([UsgsQuakesLatestSensor(hass, entry.entry_id, device_info)], True)
