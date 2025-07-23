@@ -30,7 +30,7 @@
 - Supports configuration via Home Assistant UI.
 - Supports configuration updates via the "Configure" button in the integration panel.
 
-## 📦 Installation
+## Installation
 
 ### Option 1: HACS (Recommended)
 
