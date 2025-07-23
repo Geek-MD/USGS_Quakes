@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from aio_geojson_usgs_earthquakes import (
     UsgsEarthquakeHazardsProgramFeed,
@@ -32,11 +33,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Forward config to the platform(s)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Puedes dejar este bloque si ya tienes soporte para actualizar config_entry,
-    # pero si sólo tienes config_flow.py, este add_update_listener es innecesario:
-    # entry.async_on_unload(entry.add_update_listener(_update_listener))
+    # Reload config entry if options are updated
+    entry.async_on_unload(entry.add_update_listener(_update_listener))
+
+    # Registrar el servicio para forzar update del feed
+    async def handle_force_update(call):
+        """Servicio: Forzar actualización del feed USGS Quakes."""
+        entity_data = hass.data[DOMAIN].get(entry.entry_id)
+        if not entity_data:
+            _LOGGER.warning("USGS Quakes entry not initialized, cannot force update")
+            return
+        manager = entity_data.get("manager")
+        if manager:
+            _LOGGER.info("Forzando actualización manual del feed USGS Quakes…")
+            await manager.async_update()
+        else:
+            _LOGGER.warning("USGS Quakes: No feed manager found to update")
+
+    # Registrar el servicio sólo una vez
+    if not hass.services.has_service(DOMAIN, "force_feed_update"):
+        hass.services.async_register(DOMAIN, "force_feed_update", handle_force_update)
 
     return True
+
+
+async def _update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
+    _LOGGER.debug("Reloading config entry %s due to options update", entry.entry_id)
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -47,5 +71,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id, None)
 
     return unload_ok
-
-# **NO debe existir async_get_options_flow ni ningún import/options_flow aquí**
