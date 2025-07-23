@@ -10,7 +10,7 @@
 
 # USGS Quakes
 
-> **Note:** Only one instance is supported at a time.
+> **Note:** Only one instance is supported at a time.  
 > Requires Home Assistant 2024.6.0 or newer.
 
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
@@ -25,10 +25,11 @@
   - Location (latitude, longitude, radius)
   - Minimum magnitude
   - Feed type (e.g., past day, past week, significant earthquakes, etc.)
-- Updates automatically every 5 minutes.
+- Updates automatically every 5 minutes (or on demand).
 - Entities include full metadata (magnitude, location, time, etc.).
 - Supports configuration via Home Assistant UI.
 - Supports configuration updates via the "Configure" button in the integration panel.
+- **Manual update service:** Use `usgs_quakes.force_feed_update` to force a feed refresh at any time.
 
 ## Installation
 
@@ -56,10 +57,10 @@
 
 1. Copy this repository into your Home Assistant `custom_components` directory:
 
-   ```bash
-   cd /config/custom_components
-   git clone https://github.com/Geek-MD/USGS_Quakes usgs_quakes
-   ```
+    ```bash
+    cd /config/custom_components
+    git clone https://github.com/Geek-MD/USGS_Quakes usgs_quakes
+    ```
 
 2. Restart Home Assistant.
 
@@ -104,6 +105,17 @@ This integration creates a datetime sensor reflecting the latest detected event.
   - `time` (UTC)
 
 This helps track and trigger automations based on recent seismic activity.
+
+## Services
+
+### `usgs_quakes.force_feed_update`
+
+Manually trigger an immediate update of the earthquake feed.  
+This can be used in automations, scripts, or called from the Developer Tools > Services menu.
+
+    service: usgs_quakes.force_feed_update
+
+No parameters are required. The feed will be refreshed, and new events will be processed instantly.
 
 ## Known Issues
 
