@@ -5,6 +5,7 @@
 [![GitHub Release](https://img.shields.io/github/release/Geek-MD/USGS_Quakes?include_prereleases&sort=semver&color=blue)](https://github.com/Geek-MD/USGS_Quakes/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 ![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)
+[![Ruff](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml/badge.svg?branch=develop&label=Ruff)](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml)
 
 ![USGS Quakes Icon](https://github.com/Geek-MD/USGS_Quakes/blob/main/icon.png?raw=true)
 
