@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any, Callable
 
 import logging
@@ -34,7 +34,7 @@ SOURCE = "usgs_quakes"
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry,
+    config_entry: Any,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up USGS Quakes platform."""
@@ -64,7 +64,7 @@ async def async_setup_entry(
     hass.data[DOMAIN][entry_id]["feed_manager"] = manager
     await manager.async_init()
 
-    async def start_feed_manager(event=None):
+    async def start_feed_manager(event: Any = None) -> None:
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
@@ -101,7 +101,7 @@ class UsgsQuakesFeedEntityManager:
         self._latest_events: list[dict[str, Any]] = []
 
     async def async_init(self) -> None:
-        async def update(event_time: datetime) -> None:
+        async def update(event_time: Any) -> None:
             await self.async_update()
 
         async_track_time_interval(
