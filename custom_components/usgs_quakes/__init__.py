@@ -33,11 +33,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Registrar el servicio para forzar update del feed
     async def handle_force_update(call: ServiceCall) -> None:
         """Servicio: Forzar actualización del feed USGS Quakes."""
+        _LOGGER.debug("Llamado al servicio force_feed_update (manual)")
         entity_data = hass.data[DOMAIN].get(entry.entry_id)
         if not entity_data:
             _LOGGER.warning("USGS Quakes entry not initialized, cannot force update")
             return
-        manager = entity_data.get("feed_manager")
+        manager = entity_data.get("manager")
         if manager:
             _LOGGER.info("Forzando actualización manual del feed USGS Quakes…")
             await manager.async_update()
