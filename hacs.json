@@ -1,9 +1,10 @@
 {
   "name": "USGS Quakes",
   "content_in_root": false,
-  "domains": ["geo_location"],
-  "country": "US",
-  "homeassistant": "2024.6.0",
+  "domains": ["usgs_quakes"],
+  "country": "global",
   "render_readme": true,
-  "filename": "custom_components/usgs_quakes/manifest.json"
+  "filename": "custom_components/usgs_quakes/manifest.json",
+  "category": "integration",
+  "homeassistant": "2024.6.0"
 }
