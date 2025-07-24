@@ -11,7 +11,11 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+import logging
+
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_quakes_latest"
@@ -55,8 +59,12 @@ class UsgsQuakesLatestSensor(SensorEntity):
     async def _async_update_events(self) -> None:
         """Update sensor state from the shared event list."""
         events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
-        self._events = events[-10:] if events else []
-        self._attr_native_value = self._events[-1]["time"] if self._events else None
+        self._events = events if events else []
+        if self._events:
+            self._attr_native_value = self._events[-1]["time"]
+        else:
+            self._attr_native_value = None
+        _LOGGER.debug("USGS Quakes Sensor actualizado. Eventos almacenados: %d", len(self._events))
         self.async_write_ha_state()
 
     @property
