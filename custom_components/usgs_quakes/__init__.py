@@ -37,7 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if not entity_data:
             _LOGGER.warning("USGS Quakes entry not initialized, cannot force update")
             return
-        manager = entity_data.get("manager")
+        manager = entity_data.get("feed_manager")
         if manager:
             _LOGGER.info("Forzando actualización manual del feed USGS Quakes…")
             await manager.async_update()
