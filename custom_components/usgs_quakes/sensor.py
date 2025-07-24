@@ -59,9 +59,10 @@ class UsgsQuakesLatestSensor(SensorEntity):
     async def _async_update_events(self) -> None:
         """Update sensor state from the shared event list."""
         events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
-        self._events = events if events else []
+        # Ordenar por fecha descendente (más reciente primero)
+        self._events = sorted(events, key=lambda e: e["time"], reverse=True) if events else []
         if self._events:
-            self._attr_native_value = self._events[-1]["time"]
+            self._attr_native_value = self._events[0]["time"]
         else:
             self._attr_native_value = None
         _LOGGER.debug("USGS Quakes Sensor actualizado. Eventos almacenados: %d", len(self._events))
