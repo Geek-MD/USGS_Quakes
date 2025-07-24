@@ -6,16 +6,18 @@ from typing import Any
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 
 SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_quakes_latest"
 
-# Usa la misma convención f-string que geo_location.py
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
+
 
 class UsgsQuakesLatestSensor(SensorEntity):
     """Sensor to store the latest USGS quake events."""
@@ -27,15 +29,15 @@ class UsgsQuakesLatestSensor(SensorEntity):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, hass, entry_id: str, device_info: DeviceInfo) -> None:
+    def __init__(self, hass: HomeAssistant, entry_id: str, device_info: DeviceInfo) -> None:
         self.hass = hass
         self._entry_id = entry_id
         self._attr_device_info = device_info
         self._events: list[dict[str, Any]] = []
-        self._unsub_dispatcher = None
-        self._attr_native_value = None
+        self._unsub_dispatcher: Any = None
+        self._attr_native_value: str | None = None
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         # Escucha actualizaciones del feed usando el mismo signal
         self._unsub_dispatcher = async_dispatcher_connect(
             self.hass,
@@ -44,13 +46,13 @@ class UsgsQuakesLatestSensor(SensorEntity):
         )
         await self._async_update_events()
 
-    async def async_will_remove_from_hass(self):
+    async def async_will_remove_from_hass(self) -> None:
         if self._unsub_dispatcher:
             self._unsub_dispatcher()
             self._unsub_dispatcher = None
 
     @callback
-    async def _async_update_events(self):
+    async def _async_update_events(self) -> None:
         """Update sensor state from the shared event list."""
         events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
         self._events = events[-10:] if events else []
@@ -64,7 +66,11 @@ class UsgsQuakesLatestSensor(SensorEntity):
         }
 
 
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
     device_info = DeviceInfo(
         identifiers={(DOMAIN, "usgs_quakes")},
         name="USGS Quakes Feed",
