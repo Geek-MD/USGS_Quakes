@@ -7,7 +7,6 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.core import HomeAssistant
 
 from .const import (
     DOMAIN,
@@ -20,28 +19,31 @@ from .const import (
     FEED_TYPE_FRIENDLY_NAMES,
 )
 
+from typing import Any
+
 FRIENDLY_NAME_TO_FEED_TYPE = {v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()}
 FRIENDLY_NAMES = list(FRIENDLY_NAME_TO_FEED_TYPE.keys())
 
 
-class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[misc]
+class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for USGS Quakes."""
 
     VERSION = 1
 
     async def async_step_user(
         self,
-        user_input: dict[str, object] | None = None
+        user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
             try:
-                latitude = float(user_input[CONF_LATITUDE])
-                longitude = float(user_input[CONF_LONGITUDE])
-                radius = float(user_input[CONF_RADIUS])
-                minimum_magnitude = float(user_input[CONF_MINIMUM_MAGNITUDE])
-                feed_type = FRIENDLY_NAME_TO_FEED_TYPE[user_input[CONF_FEED_TYPE]]  # type: ignore
+                # Aceptamos Any, pero casteamos correctamente
+                latitude = float(user_input.get(CONF_LATITUDE, 0.0))
+                longitude = float(user_input.get(CONF_LONGITUDE, 0.0))
+                radius = float(user_input.get(CONF_RADIUS, 0.0))
+                minimum_magnitude = float(user_input.get(CONF_MINIMUM_MAGNITUDE, 0.0))
+                feed_type = FRIENDLY_NAME_TO_FEED_TYPE[str(user_input[CONF_FEED_TYPE])]
             except (ValueError, TypeError, KeyError):
                 errors["base"] = "invalid_input"
             else:
