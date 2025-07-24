@@ -132,7 +132,7 @@ class UsgsQuakesFeedEntityManager:
                 "distance": entry.distance_to_home,
             })
 
-        # Sort events by time (most recent last)
+        # Sort events by time (most recent first)
         latest_events.sort(key=lambda e: e["time"], reverse=True)
         self._latest_events = latest_events
 
