@@ -9,7 +9,6 @@ from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
-    DOMAIN,
     CONF_RADIUS,
     CONF_MINIMUM_MAGNITUDE,
     CONF_FEED_TYPE,
