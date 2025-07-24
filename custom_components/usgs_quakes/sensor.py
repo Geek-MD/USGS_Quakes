@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from typing import Any
+from datetime import datetime
+
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -12,6 +14,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
+
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_quakes_latest"
@@ -55,8 +61,29 @@ class UsgsQuakesLatestSensor(SensorEntity):
     async def _async_update_events(self) -> None:
         """Update sensor state from the shared event list."""
         events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
-        self._events = events[-10:] if events else []
-        self._attr_native_value = self._events[-1]["time"] if self._events else None
+
+        def parse_time(e: dict[str, Any]) -> datetime:
+            try:
+                # Admite fechas con o sin Z al final
+                t = str(e["time"])
+                if t.endswith("Z"):
+                    t = t.replace("Z", "+00:00")
+                return datetime.fromisoformat(t)
+            except Exception:
+                return datetime.min
+
+        # Ordena del más nuevo al más antiguo según fecha/hora real
+        self._events = sorted(events, key=parse_time, reverse=True) if events else []
+        if self._events:
+            self._attr_native_value = self._events[0]["time"]
+        else:
+            self._attr_native_value = None
+
+        _LOGGER.debug(
+            "USGS Quakes Sensor actualizado. Eventos almacenados: %d. Último evento: %s",
+            len(self._events),
+            self._attr_native_value,
+        )
         self.async_write_ha_state()
 
     @property

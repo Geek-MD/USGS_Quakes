@@ -60,11 +60,13 @@ async def async_setup_entry(
         minimum_magnitude,
         entry_id,
     )
+
     hass.data.setdefault(DOMAIN, {})[entry_id] = {}
-    hass.data[DOMAIN][entry_id]["feed_manager"] = manager
+    hass.data[DOMAIN][entry_id]["manager"] = manager
     await manager.async_init()
 
     async def start_feed_manager(event: Any = None) -> None:
+        _LOGGER.debug("USGS Quakes: Inicio de actualización tras EVENT_HOMEASSISTANT_START")
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
@@ -102,6 +104,7 @@ class UsgsQuakesFeedEntityManager:
 
     async def async_init(self) -> None:
         async def update(event_time: Any) -> None:
+            _LOGGER.debug("USGS Quakes: Ejecutando actualización periódica del feed")
             await self.async_update()
 
         async_track_time_interval(
@@ -111,8 +114,9 @@ class UsgsQuakesFeedEntityManager:
         await self.async_update()  # Ensure first fetch on init
 
     async def async_update(self) -> None:
+        _LOGGER.debug("USGS Quakes: Ejecutando async_update (manager)")
         await self._feed_manager.update()
-        _LOGGER.debug("Feed entity manager updated")
+        _LOGGER.debug("Feed entity manager updated. Entradas del feed: %d", len(self._feed_manager.feed_entries))
 
         # Build a list of all current events
         latest_events = []
@@ -128,8 +132,8 @@ class UsgsQuakesFeedEntityManager:
                 "distance": entry.distance_to_home,
             })
 
-        # Sort events by time (most recent last)
-        latest_events.sort(key=lambda e: e["time"])
+        # Sort events by time (most recent first)
+        latest_events.sort(key=lambda e: e["time"], reverse=True)
         self._latest_events = latest_events
 
         # Share with other platforms (sensor)
