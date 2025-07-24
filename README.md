@@ -98,7 +98,7 @@ See [USGS GeoJSON Documentation](https://earthquake.usgs.gov/earthquakes/feed/v1
 This integration creates a datetime sensor reflecting the latest detected event.
 
 - **State**: Date and time of the most recent event (in ISO format, UTC).
-- **Attribute `events`**: List of up to 10 new events, each including:
+- **Attribute `events`**: List of up to 10 most recent events above the configured magnitude, each including:
   - `id`
   - `magnitude`
   - `place`
@@ -106,14 +106,13 @@ This integration creates a datetime sensor reflecting the latest detected event.
 
 This helps track and trigger automations based on recent seismic activity.
 
-## Services
+## Manual Update Service
 
-### `usgs_quakes.force_feed_update`
+The service `usgs_quakes.force_feed_update` can be triggered manually from **Developer Tools > Services** in Home Assistant, or from automations/scripts. This will immediately refresh the earthquake feed and update entities.
 
-Manually trigger an immediate update of the earthquake feed.  
-This can be used in automations, scripts, or called from the Developer Tools > Services menu.
-
-    service: usgs_quakes.force_feed_update
+```yaml
+service: usgs_quakes.force_feed_update
+```
 
 No parameters are required. The feed will be refreshed, and new events will be processed instantly.
 
