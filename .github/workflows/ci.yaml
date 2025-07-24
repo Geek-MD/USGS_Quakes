@@ -3,9 +3,9 @@ name: Ruff + Mypy + Hassfest
 on:
   workflow_dispatch:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
-    branches: [main, develop]
+    branches: [develop]
 
 jobs:
   ruff:
