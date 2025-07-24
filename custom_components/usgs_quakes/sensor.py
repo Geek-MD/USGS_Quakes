@@ -62,10 +62,10 @@ class UsgsQuakesLatestSensor(SensorEntity):
         """Update sensor state from the shared event list."""
         events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
 
-        def parse_time(e):
+        def parse_time(e: dict[str, Any]) -> datetime:
             try:
                 # Admite fechas con o sin Z al final
-                t = e["time"]
+                t = str(e["time"])
                 if t.endswith("Z"):
                     t = t.replace("Z", "+00:00")
                 return datetime.fromisoformat(t)
