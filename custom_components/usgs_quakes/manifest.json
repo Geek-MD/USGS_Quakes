@@ -1,17 +1,17 @@
 {
   "domain": "usgs_quakes",
   "name": "USGS Quakes",
-  "version": "1.0.10",
+  "codeowners": ["@Geek-MD"],
+  "config_flow": true,
+  "dependencies": [],
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "loggers": ["aio_geojson_usgs_earthquakes"],
+  "quality_scale": "legacy",
   "requirements": [
     "aio-geojson-usgs-earthquakes==0.3",
     "aio-geojson-client==0.12"
   ],
-  "dependencies": [],
-  "integration_type": "service",
-  "loggers": ["aio_geojson_usgs_earthquakes"],
-  "quality_scale": "legacy",
-  "codeowners": ["@Geek-MD"],
-  "config_flow": true,
-  "iot_class": "cloud_polling"
+  "version": "1.0.10"
 }
