@@ -2,15 +2,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
-
-from aio_geojson_usgs_earthquakes import (
-    UsgsEarthquakeHazardsProgramFeed,
-    UsgsEarthquakeHazardsProgramFeedManager,
-)
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -37,13 +31,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(_update_listener))
 
     # Registrar el servicio para forzar update del feed
-    async def handle_force_update(call):
+    async def handle_force_update(call: ServiceCall) -> None:
         """Servicio: Forzar actualización del feed USGS Quakes."""
         entity_data = hass.data[DOMAIN].get(entry.entry_id)
         if not entity_data:
             _LOGGER.warning("USGS Quakes entry not initialized, cannot force update")
             return
-        manager = entity_data.get("manager")
+        manager = entity_data.get("feed_manager")
         if manager:
             _LOGGER.info("Forzando actualización manual del feed USGS Quakes…")
             await manager.async_update()
@@ -65,7 +59,7 @@ async def _update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok: bool = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok and DOMAIN in hass.data:
         hass.data[DOMAIN].pop(entry.entry_id, None)

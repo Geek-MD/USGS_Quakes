@@ -1,0 +1,4 @@
+force_feed_update:
+  name: Force Feed Update
+  description: "Manually trigger an immediate update of the USGS Quakes feed."
+  fields: {}
