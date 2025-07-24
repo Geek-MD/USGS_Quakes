@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -9,6 +10,7 @@ from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
+    DOMAIN,
     CONF_RADIUS,
     CONF_MINIMUM_MAGNITUDE,
     CONF_FEED_TYPE,
@@ -18,12 +20,11 @@ from .const import (
     FEED_TYPE_FRIENDLY_NAMES,
 )
 
-from typing import Any
-
 FRIENDLY_NAME_TO_FEED_TYPE = {v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()}
 FRIENDLY_NAMES = list(FRIENDLY_NAME_TO_FEED_TYPE.keys())
 
-class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore  # noqa: F821
+
+class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for USGS Quakes."""
 
     VERSION = 1
@@ -36,7 +37,6 @@ class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: i
 
         if user_input is not None:
             try:
-                # Aceptamos Any, pero casteamos correctamente
                 latitude = float(user_input.get(CONF_LATITUDE, 0.0))
                 longitude = float(user_input.get(CONF_LONGITUDE, 0.0))
                 radius = float(user_input.get(CONF_RADIUS, 0.0))
