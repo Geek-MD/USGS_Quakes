@@ -133,7 +133,7 @@ class UsgsQuakesFeedEntityManager:
             })
 
         # Sort events by time (most recent last)
-        latest_events.sort(key=lambda e: e["time"])
+        latest_events.sort(key=lambda e: e["time"], reverse=True)
         self._latest_events = latest_events
 
         # Share with other platforms (sensor)
