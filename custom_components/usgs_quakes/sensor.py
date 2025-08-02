@@ -24,6 +24,8 @@ SENSOR_UNIQUE_ID = "usgs_quakes_latest"
 
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
+MAX_EVENTS = 50  # Máximo de eventos a almacenar
+
 
 class UsgsQuakesLatestSensor(SensorEntity):
     """Sensor to store the latest USGS quake events."""
@@ -59,21 +61,27 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
     @callback
     async def _async_update_events(self) -> None:
-        """Update sensor state from the shared event list."""
-        events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
+        """Update sensor state from the shared event list, keeping last 50 unique events."""
+        new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
+        # Crea un diccionario de eventos actuales (id: evento)
+        events_by_id = {e["id"]: e for e in self._events}
+        # Actualiza/agrega los nuevos eventos
+        for event in new_events:
+            events_by_id[event["id"]] = event
 
         def parse_time(e: dict[str, Any]) -> datetime:
+            t = str(e["time"])
+            if t.endswith("Z"):
+                t = t.replace("Z", "+00:00")
             try:
-                # Admite fechas con o sin Z al final
-                t = str(e["time"])
-                if t.endswith("Z"):
-                    t = t.replace("Z", "+00:00")
                 return datetime.fromisoformat(t)
             except Exception:
                 return datetime.min
 
-        # Ordena del más nuevo al más antiguo según fecha/hora real
-        self._events = sorted(events, key=parse_time, reverse=True) if events else []
+        # Ordena los eventos por fecha descendente y deja solo los 50 más recientes
+        all_events = sorted(events_by_id.values(), key=parse_time, reverse=True)
+        self._events = all_events[:MAX_EVENTS]
+
         if self._events:
             self._attr_native_value = self._events[0]["time"]
         else:
