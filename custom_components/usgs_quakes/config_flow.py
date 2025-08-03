@@ -28,6 +28,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
     """Handle a config flow for USGS Quakes."""
 
     VERSION = 1
+    DOMAIN = DOMAIN
 
     async def async_step_user(
         self,
