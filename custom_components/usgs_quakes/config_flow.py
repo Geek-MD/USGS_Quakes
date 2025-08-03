@@ -24,7 +24,7 @@ FRIENDLY_NAME_TO_FEED_TYPE = {v: k for k, v in FEED_TYPE_FRIENDLY_NAMES.items()}
 FRIENDLY_NAMES = list(FRIENDLY_NAME_TO_FEED_TYPE.keys())
 
 
-class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
+class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for USGS Quakes."""
 
     VERSION = 1
@@ -33,6 +33,11 @@ class UsgsQuakesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: i
         self,
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
+        # --- Esta es la línea clave para permitir SOLO UNA instancia ---
+        if self._async_current_entries():
+            return self.async_abort(reason="single_instance_allowed")
+        # --------------------------------------------------------------
+
         errors: dict[str, str] = {}
 
         if user_input is not None:
