@@ -3,11 +3,14 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configurar el Feed de Terremotos de USGS"
+        "title": "Configurar USGS Quakes"
       }
     },
     "error": {
-      "invalid_input": "Entrada no válida. Verifique todos los campos."
+      "invalid_input": "Entrada no válida. Por favor revisa todos los campos."
+    },
+    "abort": {
+      "single_instance_allowed": "Solo se puede configurar una instancia de USGS Quakes."
     }
   },
   "options": {

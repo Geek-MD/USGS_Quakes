@@ -3,11 +3,14 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure USGS Earthquake Feed"
+        "title": "Configure USGS Quakes"
       }
     },
     "error": {
       "invalid_input": "Invalid input. Please check all fields."
+    },
+    "abort": {
+      "single_instance_allowed": "Only a single instance of USGS Quakes can be configured."
     }
   },
   "options": {
