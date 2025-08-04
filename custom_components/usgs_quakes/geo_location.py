@@ -31,7 +31,6 @@ SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
 SOURCE = "usgs_quakes"
 
-
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: Any,
@@ -70,7 +69,6 @@ async def async_setup_entry(
         await manager.async_update()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_feed_manager)
-
 
 class UsgsQuakesFeedEntityManager:
     """Manages entities from USGS feed."""
@@ -137,7 +135,14 @@ class UsgsQuakesFeedEntityManager:
         self._latest_events = latest_events
 
         # Share with other platforms (sensor)
-        self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+        if self._entry_id in self._hass.data.get(DOMAIN, {}):
+            self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+        else:
+            _LOGGER.warning(
+                "Entry ID %s not found in hass.data[DOMAIN]. Entity will not update events.",
+                self._entry_id,
+            )
+            return
 
         # Dispatch update for sensor
         async_dispatcher_send(self._hass, SIGNAL_EVENTS_UPDATED.format(self._entry_id))
@@ -154,7 +159,6 @@ class UsgsQuakesFeedEntityManager:
 
     async def _remove_entity(self, external_id: str) -> None:
         async_dispatcher_send(self._hass, SIGNAL_DELETE_ENTITY.format(external_id))
-
 
 class UsgsQuakesEvent(GeolocationEvent):
     """Represents a USGS earthquake event."""
