@@ -13,5 +13,5 @@
     "aio-geojson-usgs-earthquakes==0.3",
     "aio-geojson-client==0.12"
   ],
-  "version": "1.0.13"
+  "version": "1.0.14"
 }
