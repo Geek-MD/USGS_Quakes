@@ -137,7 +137,14 @@ class UsgsQuakesFeedEntityManager:
         self._latest_events = latest_events
 
         # Share with other platforms (sensor)
-        self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+        if self._entry_id in self._hass.data.get(DOMAIN, {}):
+            self._hass.data[DOMAIN][self._entry_id]["events"] = self._latest_events
+        else:
+            _LOGGER.warning(
+                "Entry ID %s not found in hass.data[DOMAIN]. Entity will not update events.",
+                self._entry_id,
+            )
+            return
 
         # Dispatch update for sensor
         async_dispatcher_send(self._hass, SIGNAL_EVENTS_UPDATED.format(self._entry_id))
