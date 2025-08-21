@@ -97,7 +97,8 @@ class UsgsQuakesLatestSensor(SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
-            "events": self._events
+            "events": self._events,
+            "formatted_events": "\n\n".join(formatted),
         }
 
 
