@@ -126,7 +126,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
         return {
             "events": self._events,
-            "formatted_events": formatted,
+            "formatted_events": "\n\n".join(formatted),
         }
 
 async def async_setup_entry(
