@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import dt as dt_util
+from homeassistant.util.dt import as_local
 
 from .const import DOMAIN
 
@@ -98,37 +98,35 @@ class UsgsQuakesLatestSensor(SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         formatted = []
-        for event in self._events:
-            title = event.get("title", "")
-            place = event.get("place", "N/A")
-            magnitude = event.get("magnitude", "N/A")
-            iso_time = str(event.get("time", ""))
-            latitude = event.get("latitude", "?")
-            longitude = event.get("longitude", "?")
 
-            # Convertimos a fecha legible en hora local
-            if iso_time.endswith("Z"):
-                iso_time = iso_time.replace("Z", "+00:00")
+        for e in self._events:
+            # Fecha y hora en formato legible local
+            dt_str = e.get("time", "")
             try:
-                utc_dt = datetime.fromisoformat(iso_time)
-                local_dt = dt_util.as_local(utc_dt)
-                time_str = local_dt.strftime("%Y-%m-%d %H:%M:%S")
+                dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                dt_str = as_local(dt).strftime("%Y-%m-%d %H:%M:%S")
             except Exception:
-                time_str = iso_time  # fallback
+                pass
 
-            google_maps = f"https://maps.google.com/?q={latitude},{longitude}"
+            # Coordenadas desde el arreglo 'coordinates'
+            coords = e.get("coordinates", [None, None])
+            lat = coords[0]
+            lon = coords[1]
+            maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat is not None and lon is not None else "N/A"
 
-            formatted.append(
-                f"{title}\n"
-                f"Lugar: {place}\n"
-                f"Magnitud: {magnitude} Mw\n"
-                f"Fecha/Hora: {time_str}\n"
-                f"Localización: {google_maps}"
+            # Formato del evento
+            text = (
+                f"{e.get('title', 'N/A')}\n"
+                f"Lugar: {e.get('place', 'N/A')}\n"
+                f"Magnitud: {e.get('magnitude', 'N/A')} Mw\n"
+                f"Fecha/Hora: {dt_str}\n"
+                f"Localización: {maps_url}"
             )
+            formatted.append(text)
 
         return {
             "events": self._events,
-            "formatted_events": "\n\n".join(formatted),
+            "formatted_events": formatted,
         }
 
 async def async_setup_entry(
