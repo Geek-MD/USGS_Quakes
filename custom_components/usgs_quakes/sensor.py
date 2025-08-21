@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util.dt import as_local
 
 from .const import DOMAIN
 
@@ -96,11 +97,37 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
+        formatted = []
+
+        for e in self._events:
+            # Fecha y hora en formato legible local
+            dt_str = e.get("time", "")
+            try:
+                dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                dt_str = as_local(dt).strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                pass
+
+            # Coordenadas desde el arreglo 'coordinates'
+            coords = e.get("coordinates", [None, None])
+            lat = coords[0]
+            lon = coords[1]
+            maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat is not None and lon is not None else "N/A"
+
+            # Formato del evento
+            text = (
+                f"{e.get('title', 'N/A')}\n"
+                f"Lugar: {e.get('place', 'N/A')}\n"
+                f"Magnitud: {e.get('magnitude', 'N/A')} Mw\n"
+                f"Fecha/Hora: {dt_str}\n"
+                f"Localización: {maps_url}"
+            )
+            formatted.append(text)
+
         return {
             "events": self._events,
             "formatted_events": "\n\n".join(formatted),
         }
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
