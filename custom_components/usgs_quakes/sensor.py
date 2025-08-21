@@ -96,10 +96,39 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return {
-            "events": self._events
-        }
+        formatted = []
+        for event in self._events:
+            title = event.get("title", "")
+            place = event.get("place", "N/A")
+            magnitude = event.get("magnitude", "N/A")
+            iso_time = str(event.get("time", ""))
+            latitude = event.get("latitude", "?")
+            longitude = event.get("longitude", "?")
 
+            # Convertimos a fecha legible en hora local
+            if iso_time.endswith("Z"):
+                iso_time = iso_time.replace("Z", "+00:00")
+            try:
+                utc_dt = datetime.fromisoformat(iso_time)
+                local_dt = dt_util.as_local(utc_dt)
+                time_str = local_dt.strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                time_str = iso_time  # fallback
+
+            google_maps = f"https://maps.google.com/?q={latitude},{longitude}"
+
+            formatted.append(
+                f"{title}\n"
+                f"Lugar: {place}\n"
+                f"Magnitud: {magnitude} Mw\n"
+                f"Fecha/Hora: {time_str}\n"
+                f"Localización: {google_maps}"
+            )
+
+        return {
+            "events": self._events,
+            "formatted_events": "\n\n".join(formatted),
+        }
 
 async def async_setup_entry(
     hass: HomeAssistant,
