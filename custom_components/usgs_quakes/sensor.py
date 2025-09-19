@@ -47,7 +47,6 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self._attr_native_value: str | None = None
 
     async def async_added_to_hass(self) -> None:
-        # Escucha actualizaciones del feed usando el mismo signal
         self._unsub_dispatcher = async_dispatcher_connect(
             self.hass,
             SIGNAL_EVENTS_UPDATED.format(self._entry_id),
@@ -62,13 +61,17 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
     @callback
     async def _async_update_events(self) -> None:
-        """Update sensor state from the shared event list, keeping last 50 unique events."""
+        """Update sensor state from the shared event list."""
         new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
-        # Crea un diccionario de eventos actuales (id: evento)
-        events_by_id = {e["id"]: e for e in self._events}
-        # Actualiza/agrega los nuevos eventos
-        for event in new_events:
-            events_by_id[event["id"]] = event
+
+        # Crear conjunto con las ids ya almacenadas
+        existing_ids = {e["id"] for e in self._events}
+
+        # Determinar si es primera ejecución (sin eventos guardados)
+        if not self._events:
+            filtered_events = new_events
+        else:
+            filtered_events = [e for e in new_events if e["id"] not in existing_ids]
 
         def parse_time(e: dict[str, Any]) -> datetime:
             t = str(e["time"])
@@ -79,28 +82,29 @@ class UsgsQuakesLatestSensor(SensorEntity):
             except Exception:
                 return datetime.min
 
-        # Ordena los eventos por fecha descendente y deja solo los 50 más recientes
-        all_events = sorted(events_by_id.values(), key=parse_time, reverse=True)
-        self._events = all_events[:MAX_EVENTS]
+        # Agregar nuevos eventos y reordenar
+        self._events.extend(filtered_events)
+        self._events = sorted(self._events, key=parse_time, reverse=True)[:MAX_EVENTS]
 
+        # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
             self._attr_native_value = self._events[0]["time"]
         else:
             self._attr_native_value = None
 
         _LOGGER.debug(
-            "USGS Quakes Sensor actualizado. Eventos almacenados: %d. Último evento: %s",
+            "USGS Quakes Sensor actualizado. Nuevos eventos: %d. Total almacenados: %d.",
+            len(filtered_events),
             len(self._events),
-            self._attr_native_value,
         )
         self.async_write_ha_state()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        formatted = []
+        formatted_lines = []
 
         for e in self._events:
-            # Fecha y hora en formato legible local
+            # Fecha y hora local
             dt_str = e.get("time", "")
             try:
                 dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
@@ -108,13 +112,13 @@ class UsgsQuakesLatestSensor(SensorEntity):
             except Exception:
                 pass
 
-            # Coordenadas desde el arreglo 'coordinates'
+            # Coordenadas
             coords = e.get("coordinates", [None, None])
             lat = coords[0]
             lon = coords[1]
             maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat is not None and lon is not None else "N/A"
 
-            # Formato del evento
+            # Formato
             text = (
                 f"{e.get('title', 'N/A')}\n"
                 f"Lugar: {e.get('place', 'N/A')}\n"
@@ -122,12 +126,13 @@ class UsgsQuakesLatestSensor(SensorEntity):
                 f"Fecha/Hora: {dt_str}\n"
                 f"Localización: {maps_url}"
             )
-            formatted.append(text)
+            formatted_lines.append(text)
 
         return {
             "events": self._events,
-            "formatted_events": "\n\n".join(formatted),
+            "formatted_events": "\n\n".join(formatted_lines),
         }
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
