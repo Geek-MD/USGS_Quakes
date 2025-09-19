@@ -76,6 +76,8 @@ All configuration is done via the UI.
 
 You can later modify the radius, magnitude and feed type from the integration options.
 
+---
+
 ## Feed Types Supported
 
 A total of 20 USGS feed types are supported, including:
@@ -95,8 +97,6 @@ This sensor contains:
 - `state`: Timestamp of the most recent earthquake event (in ISO format)
 - `events`: A list of new earthquake events (max 50)
 - `formatted_events`: A multiline string summary of the new events
-
----
 
 ### Example formatted output:
 
