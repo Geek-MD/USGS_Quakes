@@ -7,7 +7,7 @@
 ![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)
 [![Ruff](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml/badge.svg?branch=develop&label=Ruff)](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml)
 
-![USGS Quakes Icon](https://github.com/Geek-MD/USGS_Quakes/blob/main/icon.png?raw=true)
+<img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/4b16bce6-316f-465f-8fbb-bc3fdce30f51" />
 
 # USGS Quakes
 
