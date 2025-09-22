@@ -11,65 +11,57 @@
 
 # USGS Quakes
 
-> **Note:** Only one instance is supported at a time.  
-> Requires Home Assistant 2024.6.0 or newer.
-
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
+
+---
 
 ## Features
 
-- Fetches earthquake data directly from USGS GeoJSON feeds.
-- Creates `geo_location` entities for each event.
-- Creates a `sensor.usgs_quakes_latest` datetime sensor showing the latest event time.
-- Stores recent events as sensor attributes (filtered by configured magnitude).
-- Filters by:
-  - Location (latitude, longitude, radius)
-  - Minimum magnitude
-  - Feed type (e.g., past day, past week, significant earthquakes, etc.)
-- Updates automatically every 5 minutes (or on demand).
-- Entities include full metadata (magnitude, location, time, etc.).
-- Supports configuration via Home Assistant UI.
-- Supports configuration updates via the "Configure" button in the integration panel.
-- **Manual update service:** Use `usgs_quakes.force_feed_update` to force a feed refresh at any time.
+- Monitors earthquakes from USGS based on the selected feed type.
+- Filters events by:
+  - Minimum magnitude (Mw)
+  - Maximum distance (radius) from your location
+- Creates `geo_location` entities for each qualifying earthquake.
+- Includes a special sensor `sensor.usgs_quakes_latest` that:
+  - Stores only new events that were not previously seen (based on `id`)
+  - Presents a human-readable summary with event details:
+    - Title
+    - Place
+    - Magnitude
+    - Date and time (local)
+    - Location (Google Maps link)
+
+---
+
+## Requirements
+
+- Home Assistant 2024.6.0 or later
+- Internet access to connect to the USGS feed
+
+---
 
 ## Installation
 
-### Option 1: HACS (Recommended)
+### Option 1: Using HACS (recommended)
 
-> Make sure [HACS](https://hacs.xyz/) is already installed in your Home Assistant.
-
-1. **Add as custom repository in HACS:**  
-   Go to **HACS > Integrations > Custom repositories**, enter:
-
+1. Open HACS in Home Assistant.
+2. Go to “Integrations” → “Custom repositories”.
+3. Add:
    ```
    https://github.com/Geek-MD/USGS_Quakes
    ```
+   as a **Integration** type.
+4. Install the integration and restart Home Assistant.
+5. Go to Settings → Devices & Services → Add Integration → **USGS Quakes**.
 
-   Select **Integration** as the category and click **Add**.
+### Option 2: Manual installation
 
-2. **Install USGS Quakes:**  
-   Search for **USGS Quakes** in HACS integrations and install.
-
-3. **Restart Home Assistant.**
-
----
-
-### Option 2: Manual
-
-1. Copy this repository into your Home Assistant `custom_components` directory:
-
-    ```bash
-    cd /config/custom_components
-    git clone https://github.com/Geek-MD/USGS_Quakes usgs_quakes
-    ```
-
-2. Restart Home Assistant.
+1. Download this repository.
+2. Copy the folder `custom_components/usgs_quakes/` into your Home Assistant `custom_components/` directory.
+3. Restart Home Assistant.
+4. Add the integration from the UI.
 
 ---
-
-Once installed, go to **Settings > Devices & Services > Integrations**, click **Add Integration** and search for **USGS Quakes**.
-
-**Note:** Only one instance is supported at a time.
 
 ## Configuration
 
@@ -84,6 +76,8 @@ All configuration is done via the UI.
 
 You can later modify the radius, magnitude and feed type from the integration options.
 
+---
+
 ## Feed Types Supported
 
 A total of 20 USGS feed types are supported, including:
@@ -94,18 +88,27 @@ A total of 20 USGS feed types are supported, including:
 
 See [USGS GeoJSON Documentation](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) for details.
 
+---
+
 ## Sensor: `sensor.usgs_quakes_latest`
 
-This integration creates a datetime sensor reflecting the latest detected event.
+This sensor contains:
 
-- **State**: Date and time of the most recent event (in ISO format, UTC).
-- **Attribute `events`**: List of up to 10 most recent events above the configured magnitude, each including:
-  - `id`
-  - `magnitude`
-  - `place`
-  - `time` (UTC)
+- `state`: Timestamp of the most recent earthquake event (in ISO format)
+- `events`: A list of new earthquake events (max 50)
+- `formatted_events`: A multiline string summary of the new events
 
-This helps track and trigger automations based on recent seismic activity.
+### Example formatted output:
+
+```
+M 4.3 - 10 km NE of Townsville, Chile
+Place: 10 km NE of Townsville, Chile
+Magnitude: 4.3 Mw
+Date/Time: 2025-09-18 04:33:22
+Location: https://www.google.com/maps?q=-30.1234,-71.5678
+```
+
+---
 
 ## Manual Update Service
 
@@ -117,13 +120,31 @@ service: usgs_quakes.force_feed_update
 
 No parameters are required. The feed will be refreshed, and new events will be processed instantly.
 
+---
+
+## Notes
+
+- On the first run, the sensor stores **all events** that meet the configured filters.
+- On subsequent updates, it stores **only new events** that were not seen previously (based on their `id`).
+- Events are ordered from newest to oldest.
+
+---
+
 ## Known Issues
 
 - Only one instance is supported at a time (currently).
 - Feed entries older than the last scan might be skipped.
+
+---
 
 ## Credits
 
 Developed by [@Geek-MD](https://github.com/Geek-MD)
 
 Feed powered by [USGS GeoJSON Earthquake Feeds](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
+
+---
+
+## License
+
+MIT © Edison Montes [_@GeekMD_](https://github.com/Geek-MD)
