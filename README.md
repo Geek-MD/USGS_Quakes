@@ -33,6 +33,23 @@
 
 ---
 
+## What's New in v1.1.0
+
+This version introduces new **Lovelace cards** for improved visualization and interaction:
+
+- **Earthquake Map Card**  
+  Automatically shows a map with all earthquakes as geo markers.
+
+- **Event List Card**  
+  A manual card that lists recent events with clickable Google Maps links.
+
+- **Update Button Card**  
+  A manual card with a button to trigger an immediate feed update.
+
+These cards are available in the `lovelace/` folder of the integration.
+
+---
+
 ## Requirements
 
 - Home Assistant 2024.6.0 or later
@@ -110,6 +127,44 @@ Location: https://www.google.com/maps?q=-30.1234,-71.5678
 
 ---
 
+## Lovelace Cards
+
+The following cards are included in `custom_components/usgs_quakes/lovelace/`:
+
+### Map Card (Automatically added)
+
+This map card displays earthquake markers using the geo entities. No manual action is required.
+
+### Event List Card
+
+Displays each event as a list with clickable locations.
+
+To add manually:
+
+1. Go to your dashboard.
+2. Click **Edit** → **Add Card** → **Manual**.
+3. Paste the contents of:
+
+```
+custom_components/usgs_quakes/lovelace/event_list_card.yaml
+```
+
+### Update Button Card
+
+Triggers a manual update of the USGS feed.
+
+To add manually:
+
+1. Go to your dashboard.
+2. Click **Edit** → **Add Card** → **Manual**.
+3. Paste the contents of:
+
+```
+custom_components/usgs_quakes/lovelace/update_button_card.yaml
+```
+
+---
+
 ## Manual Update Service
 
 The service `usgs_quakes.force_feed_update` can be triggered manually from **Developer Tools > Services** in Home Assistant, or from automations/scripts. This will immediately refresh the earthquake feed and update entities.
@@ -117,8 +172,6 @@ The service `usgs_quakes.force_feed_update` can be triggered manually from **Dev
 ```yaml
 service: usgs_quakes.force_feed_update
 ```
-
-No parameters are required. The feed will be refreshed, and new events will be processed instantly.
 
 ---
 
