@@ -1,6 +1,0 @@
-type: map
-title: USGS Quakes Map
-entities:
-  - geo_location.usgs_quakes_*
-hours_to_show: 168
-default_zoom: 4

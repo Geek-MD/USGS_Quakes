@@ -1,9 +1,0 @@
-type: button
-name: Refresh USGS Feed
-icon: mdi:refresh
-tap_action:
-  action: call-service
-  service: homeassistant.update_entity
-  data: {}
-  target:
-    entity_id: sensor.usgs_quakes_latest
