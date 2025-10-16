@@ -1,9 +1,0 @@
-type: markdown
-title: USGS Quakes Events
-content: |
-  {% for e in state_attr('sensor.usgs_quakes_latest', 'events') %}
-  **{{ e.title }}**  
-  - Magnitude: {{ e.magnitude }} Mw  
-  - Location: [{{ e.place }}](https://www.google.com/maps?q={{ e.coordinates[0] }},{{ e.coordinates[1] }})  
-  - Time: {{ e.time }}  
-  {% endfor %}
