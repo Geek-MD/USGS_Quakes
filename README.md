@@ -126,7 +126,7 @@ You can trigger this from Developer Tools, automations, or UI buttons.
 
 ## 💡 Optional Lovelace Cards
 
-For visualizing data in Lovelace, install the **USGS Quakes Cards** from [USGS Quakes Cards](https://github.com/Geek-MD/USGS_Quakes_Cards) repository:
+For visualizing data in Lovelace, install the **USGS Quakes Cards** from [USGS Quakes Cards](https://github.com/Geek-MD/usgs_quakes_cards) repository:
 
 - Map of recent earthquakes
 - List of formatted events
