@@ -34,10 +34,11 @@ class UsgsQuakesLatestSensor(SensorEntity):
     _attr_has_entity_name = True
     _attr_name = SENSOR_NAME
     _attr_unique_id = SENSOR_UNIQUE_ID
+    _attr_suggested_object_id = SENSOR_UNIQUE_ID
     _attr_icon = "mdi:pulse"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-
+    
     def __init__(self, hass: HomeAssistant, entry_id: str, device_info: DeviceInfo) -> None:
         self.hass = hass
         self._entry_id = entry_id
