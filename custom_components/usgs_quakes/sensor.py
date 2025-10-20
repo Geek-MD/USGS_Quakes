@@ -89,7 +89,11 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
         # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
-            self._attr_native_value = self._events[0]["time"]
+            try:
+                dt = datetime.fromisoformat(self._events[0]["time"].replace("Z", "+00:00"))
+                self._attr_native_value = as_local(dt)
+            except Exception:
+                self._attr_native_value = None
         else:
             self._attr_native_value = None
 
