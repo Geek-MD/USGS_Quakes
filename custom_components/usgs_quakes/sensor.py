@@ -34,10 +34,11 @@ class UsgsQuakesLatestSensor(SensorEntity):
     _attr_has_entity_name = True
     _attr_name = SENSOR_NAME
     _attr_unique_id = SENSOR_UNIQUE_ID
+    _attr_suggested_object_id = SENSOR_UNIQUE_ID
     _attr_icon = "mdi:pulse"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-
+    
     def __init__(self, hass: HomeAssistant, entry_id: str, device_info: DeviceInfo) -> None:
         self.hass = hass
         self._entry_id = entry_id
@@ -88,7 +89,11 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
         # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
-            self._attr_native_value = self._events[0]["time"]
+            try:
+                dt = datetime.fromisoformat(self._events[0]["time"].replace("Z", "+00:00"))
+                self._attr_native_value = as_local(dt)
+            except Exception:
+                self._attr_native_value = None
         else:
             self._attr_native_value = None
 
