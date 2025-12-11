@@ -53,8 +53,8 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           
-          # Extract changelog for the specific version
-          CHANGELOG_CONTENT=$(awk '/^## \['$VERSION'\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md)
+          # Extract changelog for the specific version using awk with -v for safer variable interpolation
+          CHANGELOG_CONTENT=$(awk -v ver="$VERSION" 'BEGIN{p=0} $0 ~ "^## \\[" ver "\\]"{p=1; next} /^## \[/{p=0} p' CHANGELOG.md)
           
           # If changelog is empty, use a default message
           if [ -z "$CHANGELOG_CONTENT" ]; then
