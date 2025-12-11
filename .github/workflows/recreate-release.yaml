@@ -1,0 +1,83 @@
+name: Recreate Release v1.1.4
+
+on:
+  workflow_dispatch:
+
+jobs:
+  recreate-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Delete existing release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get release ID for v1.1.4
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v1.1.4 --jq '.id' 2>/dev/null || echo "")
+          
+          if [ -n "$RELEASE_ID" ]; then
+            echo "Deleting release v1.1.4 (ID: $RELEASE_ID)"
+            gh api -X DELETE repos/${{ github.repository }}/releases/$RELEASE_ID
+            echo "Release deleted successfully"
+          else
+            echo "Release v1.1.4 not found, skipping deletion"
+          fi
+      
+      - name: Delete existing tag
+        run: |
+          git fetch --tags
+          if git tag -l "v1.1.4" | grep -q .; then
+            echo "Deleting tag v1.1.4"
+            git push --delete origin v1.1.4 || echo "Failed to delete remote tag (may not exist)"
+          else
+            echo "Tag v1.1.4 not found locally"
+          fi
+      
+      - name: Get version from manifest
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' custom_components/usgs_quakes/manifest.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          
+          # Extract changelog for the specific version using awk with -v for safer variable interpolation
+          CHANGELOG_CONTENT=$(awk -v ver="$VERSION" 'BEGIN{p=0} $0 ~ "^## \\[" ver "\\]"{p=1; next} /^## \[/{p=0} p' CHANGELOG.md)
+          
+          # If changelog is empty, use a default message
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            CHANGELOG_CONTENT="Release v$VERSION
+
+          This release corresponds to version $VERSION from manifest.json"
+          fi
+          
+          # Save to output (handle multiline)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "Extracted changelog:"
+          echo "$CHANGELOG_CONTENT"
+      
+      - name: Create new release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.get_version.outputs.tag }} \
+            --title "${{ steps.get_version.outputs.tag }}" \
+            --notes "${{ steps.changelog.outputs.content }}" \
+            --target ${{ github.sha }}
+          
+          echo "Release ${{ steps.get_version.outputs.tag }} created successfully"

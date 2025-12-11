@@ -41,6 +41,26 @@ jobs:
             echo "Tag v${{ steps.get_version.outputs.version }} does not exist"
           fi
       
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          
+          # Extract changelog for the specific version using awk with -v for safer variable interpolation
+          CHANGELOG_CONTENT=$(awk -v ver="$VERSION" 'BEGIN{p=0} $0 ~ "^## \\[" ver "\\]"{p=1; next} /^## \[/{p=0} p' CHANGELOG.md)
+          
+          # If changelog is empty, use a default message
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            CHANGELOG_CONTENT="Release v$VERSION
+
+          This release corresponds to version $VERSION from manifest.json"
+          fi
+          
+          # Save to output (handle multiline)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
         uses: actions/create-release@v1
@@ -49,9 +69,6 @@ jobs:
         with:
           tag_name: ${{ steps.get_version.outputs.tag }}
           release_name: ${{ steps.get_version.outputs.tag }}
-          body: |
-            Release ${{ steps.get_version.outputs.tag }}
-            
-            This release corresponds to version ${{ steps.get_version.outputs.version }} from manifest.json
+          body: ${{ steps.changelog.outputs.content }}
           draft: false
           prerelease: false
