@@ -10,9 +10,12 @@ All notable changes to this project will be documented in this file.
   - Fixed integration reload when options are updated
 
 ### Changed
-- Updated README badges to reference Video Normalizer repository
+- Enhanced README badge section with additional quality indicators
+  - Added Ruff + Mypy + Hassfest combined workflow badge
+  - Added Ruff quality badge
+  - Added Mypy type checking badge
 - Added "Proudly developed with GitHub Copilot" footer to README
-- Enhanced badge section with additional quality indicators (Ruff, Mypy, Hassfest)
+- All badges now properly reference USGS_Quakes repository
 
 ### Quality
 - Verified code passes all ruff linting checks

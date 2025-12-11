@@ -1,12 +1,12 @@
-[![Geek-MD - Video Normalizer](https://img.shields.io/static/v1?label=Geek-MD&message=Video%20Normalizer&color=blue&logo=github)](https://github.com/Geek-MD/Video_Normalizer)
-[![Stars](https://img.shields.io/github/stars/Geek-MD/Video_Normalizer?style=social)](https://github.com/Geek-MD/Video_Normalizer)
-[![Forks](https://img.shields.io/github/forks/Geek-MD/Video_Normalizer?style=social)](https://github.com/Geek-MD/Video_Normalizer)
+[![Geek-MD - USGS Quakes](https://img.shields.io/static/v1?label=Geek-MD&message=USGS%20Quakes&color=blue&logo=github)](https://github.com/Geek-MD/USGS_Quakes)
+[![Stars](https://img.shields.io/github/stars/Geek-MD/USGS_Quakes?style=social)](https://github.com/Geek-MD/USGS_Quakes)
+[![Forks](https://img.shields.io/github/forks/Geek-MD/USGS_Quakes?style=social)](https://github.com/Geek-MD/USGS_Quakes)
 
-[![GitHub Release](https://img.shields.io/github/release/Geek-MD/Video_Normalizer?include_prereleases&sort=semver&color=blue)](https://github.com/Geek-MD/Video_Normalizer/releases)
-[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Geek-MD/Video_Normalizer/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/Geek-MD/USGS_Quakes?include_prereleases&sort=semver&color=blue)](https://github.com/Geek-MD/USGS_Quakes/releases)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Geek-MD/USGS_Quakes/blob/main/LICENSE)
 [![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)](https://hacs.xyz/)
 
-[![Ruff + Mypy + Hassfest](https://github.com/Geek-MD/Video_Normalizer/actions/workflows/validate.yml/badge.svg)](https://github.com/Geek-MD/Video_Normalizer/actions/workflows/validate.yml)
+[![Ruff + Mypy + Hassfest](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/validate.yml/badge.svg)](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/validate.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
