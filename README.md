@@ -1,11 +1,14 @@
-[![Geek-MD - USGS Quakes](https://img.shields.io/static/v1?label=Geek-MD&message=USGS%20Quakes&color=blue&logo=github)](https://github.com/Geek-MD/USGS_Quakes)
-[![Stars](https://img.shields.io/github/stars/Geek-MD/USGS_Quakes?style=social)](https://github.com/Geek-MD/USGS_Quakes)
-[![Forks](https://img.shields.io/github/forks/Geek-MD/USGS_Quakes?style=social)](https://github.com/Geek-MD/USGS_Quakes)
+[![Geek-MD - Video Normalizer](https://img.shields.io/static/v1?label=Geek-MD&message=Video%20Normalizer&color=blue&logo=github)](https://github.com/Geek-MD/Video_Normalizer)
+[![Stars](https://img.shields.io/github/stars/Geek-MD/Video_Normalizer?style=social)](https://github.com/Geek-MD/Video_Normalizer)
+[![Forks](https://img.shields.io/github/forks/Geek-MD/Video_Normalizer?style=social)](https://github.com/Geek-MD/Video_Normalizer)
 
-[![GitHub Release](https://img.shields.io/github/release/Geek-MD/USGS_Quakes?include_prereleases&sort=semver&color=blue)](https://github.com/Geek-MD/USGS_Quakes/releases)
-[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
-![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)
-[![Ruff](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml/badge.svg?branch=develop&label=Ruff)](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/ci.yaml)
+[![GitHub Release](https://img.shields.io/github/release/Geek-MD/Video_Normalizer?include_prereleases&sort=semver&color=blue)](https://github.com/Geek-MD/Video_Normalizer/releases)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Geek-MD/Video_Normalizer/blob/main/LICENSE)
+[![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)](https://hacs.xyz/)
+
+[![Ruff + Mypy + Hassfest](https://github.com/Geek-MD/Video_Normalizer/actions/workflows/validate.yml/badge.svg)](https://github.com/Geek-MD/Video_Normalizer/actions/workflows/validate.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 <img width="200" height="200" alt="icon" src="https://github.com/Geek-MD/USGS_Quakes/blob/main/icon.png?raw=true" />
 
@@ -157,3 +160,11 @@ Special thanks to [@AdamsLab01](https://github.com/AdamsLab01) for reporting cri
 ## 📄 License
 
 MIT © Edison Montes [_@GeekMD_](https://github.com/Geek-MD)
+
+---
+
+<div align="center">
+  
+💻 **Proudly developed with GitHub Copilot** 🚀
+
+</div>
