@@ -45,6 +45,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self._entry_id = entry_id
         self._attr_device_info = device_info
         self._events: list[dict[str, Any]] = []
+        self._latest_events: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any = None
         self._attr_native_value: datetime | None = None
 
@@ -80,6 +81,15 @@ class UsgsQuakesLatestSensor(SensorEntity):
             self._events, key=lambda e: parse_event_time(e), reverse=True
         )[:MAX_EVENTS]
 
+        # latest_events: eventos nuevos de esta actualización, ordenados del más reciente al más antiguo
+        self._latest_events = sorted(
+            filtered_events, key=lambda e: parse_event_time(e), reverse=True
+        )
+
+        # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
+        entry_data = self.hass.data[DOMAIN].setdefault(self._entry_id, {})
+        entry_data["latest_events"] = self._latest_events
+
         # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
             try:
@@ -106,6 +116,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
             "events": self._events,
+            "latest_events": self._latest_events,
         }
 
 

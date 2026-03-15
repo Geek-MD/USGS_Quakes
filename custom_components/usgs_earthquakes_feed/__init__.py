@@ -60,7 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         all_events: list[dict[str, Any]] = []
         for entry_data in hass.data.get(DOMAIN, {}).values():
             if isinstance(entry_data, dict):
-                all_events.extend(entry_data.get("events", []))
+                all_events.extend(entry_data.get("latest_events", []))
 
         all_events.sort(key=parse_event_time, reverse=True)
 
