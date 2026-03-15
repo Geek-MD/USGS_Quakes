@@ -86,6 +86,10 @@ class UsgsQuakesLatestSensor(SensorEntity):
             filtered_events, key=lambda e: parse_event_time(e), reverse=True
         )
 
+        # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
+        entry_data = self.hass.data[DOMAIN].setdefault(self._entry_id, {})
+        entry_data["latest_events"] = self._latest_events
+
         # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
             try:

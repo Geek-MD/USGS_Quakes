@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
   - On the first update, `latest_events` contains all events reported by the integration, ordered from most recent to oldest.
   - On subsequent updates, `latest_events` contains only the new events since the previous update, ordered from most recent to oldest.
 
+### Changed
+- **`format_events` service now reads from `latest_events`**: The `format_events` action now formats events sourced from the `latest_events` attribute (new events only per update) instead of the full cumulative `events` list.
+
 ## [1.2.1] - 2026-03-15
 
 ### Fixed
