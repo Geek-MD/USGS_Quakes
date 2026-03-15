@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Updated `README.md` references to new domain and sensor/service names
 - Updated `STORAGE_KEY` and device identifiers to use `usgs_earthquakes_feed`
 - Brand images remain in `custom_components/usgs_earthquakes_feed/brand/` for local brand image support
+- Updated `README.md` with a prominent notice about the core integration override and a migration guide for users upgrading from `usgs_quakes` (v1.1.x)
 
 ## [1.1.5] - 2026-03-15
 

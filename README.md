@@ -16,6 +16,11 @@
 
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
 
+> [!IMPORTANT]
+> Starting from **v1.2.0**, this integration uses the domain `usgs_earthquakes_feed`, which **overrides the built-in Home Assistant core integration** of the same name. In the integrations overview, it will display a special icon in the upper-right corner of the integration card indicating it overrides a core integration.
+>
+> If you were using the previous **`usgs_quakes`** domain (v1.1.x or earlier), you must **remove the old integration and set it up again** after upgrading to v1.2.0.
+
 ---
 
 ## 🌍 Features
@@ -65,6 +70,17 @@
 2. Copy the folder `custom_components/usgs_earthquakes_feed/` into your Home Assistant `config/custom_components/` directory.
 3. Restart Home Assistant.
 4. Add the integration via the UI.
+
+---
+
+### ⚠️ Migrating from `usgs_quakes` (v1.1.x → v1.2.0)
+
+Version 1.2.0 changed the integration domain from `usgs_quakes` to `usgs_earthquakes_feed`. Home Assistant treats these as two different integrations, so a one-time manual migration is required:
+
+1. Go to **Settings → Devices & Services**.
+2. Find the **USGS Quakes** entry with domain `usgs_quakes` and **delete** it.
+3. Install v1.2.0 (via HACS or manually) and restart Home Assistant.
+4. Go to **Settings → Devices & Services → Add Integration** and set up **USGS Quakes** again.
 
 ---
 
