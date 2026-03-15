@@ -2,3 +2,8 @@ force_feed_update:
   name: Force Feed Update
   description: "Manually trigger an immediate update of the USGS Quakes feed."
   fields: {}
+
+format_events:
+  name: Format Events
+  description: "Returns the stored earthquake events formatted as human-readable text."
+  fields: {}

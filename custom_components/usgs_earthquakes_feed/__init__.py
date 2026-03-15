@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
@@ -12,6 +13,7 @@ from .const import (
     DOMAIN,
     PLATFORMS,
 )
+from .helpers import format_event, parse_event_time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +53,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Registrar el servicio sólo una vez
     if not hass.services.has_service(DOMAIN, "force_feed_update"):
         hass.services.async_register(DOMAIN, "force_feed_update", handle_force_update)
+
+    # Registrar el servicio format_events con soporte de respuesta
+    async def handle_format_events(call: ServiceCall) -> dict[str, Any]:
+        """Servicio: Devuelve los eventos de terremotos formateados como texto."""
+        all_events: list[dict[str, Any]] = []
+        for entry_data in hass.data.get(DOMAIN, {}).values():
+            if isinstance(entry_data, dict):
+                all_events.extend(entry_data.get("events", []))
+
+        all_events.sort(key=parse_event_time, reverse=True)
+
+        return {"formatted_events": "\n\n".join(format_event(e) for e in all_events)}
+
+    if not hass.services.has_service(DOMAIN, "format_events"):
+        hass.services.async_register(
+            DOMAIN,
+            "format_events",
+            handle_format_events,
+            supports_response=SupportsResponse.ONLY,
+        )
 
     return True
 

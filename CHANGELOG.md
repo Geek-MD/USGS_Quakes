@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-03-15
+
+### Fixed
+- **Sensor state "unknown"**: The sensor state was incorrectly showing `unknown` even when events were present. The root cause was that `entry.time` from `aio_geojson_usgs_earthquakes` is a `datetime` object, and the code tried to call `.replace("Z", "+00:00")` on it as if it were a string. `datetime.replace()` does not accept positional string arguments, causing a `TypeError` that was silently caught and left `_attr_native_value` as `None`.
+- Removed erroneous `@callback` decorator from `async def _async_update_events` in `sensor.py` (correct pattern for async dispatcher callbacks).
+
+### Changed
+- Removed `formatted_events` attribute from the sensor's `extra_state_attributes`.
+- Added new `format_events` action (service) that returns formatted earthquake events in a response variable (`formatted_events`). Call this action with a `response_variable` to get the human-readable text output.
+
 ## [1.2.0] - 2026-03-15
 
 ### Changed

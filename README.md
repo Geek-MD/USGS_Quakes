@@ -31,13 +31,10 @@
   - **Maximum Distance** from your location (Radius)
 - Creates `geo_location` entities for each event.
 - Includes a special sensor `sensor.usgs_earthquakes_feed_latest` that:
-  - Stores only **new** earthquake events (based on their unique `id`)
-  - Exposes a formatted list of recent events:
-    - Title
-    - Place
-    - Magnitude
-    - Date/time (local)
-    - Google Maps link to epicenter
+  - Stores the last **50** new earthquake events (based on their unique `id`)
+  - State is the timestamp of the most recent event
+  - Exposes the full list of stored events via the `events` attribute
+- Includes a `format_events` action that returns earthquake events as formatted text via a response variable
 
 ---
 
@@ -116,22 +113,37 @@ Full list: [USGS GeoJSON Feed Documentation](https://earthquake.usgs.gov/earthqu
 This sensor exposes:
 
 - `state`: Timestamp of the latest event
-- `events`: List of the last 10 new earthquakes
-- `formatted_events`: Multiline string with summary info
+- `events`: List of the last 50 new earthquakes (stored across restarts)
 
-### Example:
+---
+
+## 📋 Action: `usgs_earthquakes_feed.format_events`
+
+Returns the stored earthquake events formatted as human-readable text via a response variable.
+
+### Example automation:
+
+```yaml
+action: usgs_earthquakes_feed.format_events
+response_variable: result
+# result.formatted_events contains multiline text, e.g.:
+```
+
+### Example output:
 
 ```
 M 5.2 - Near Valparaíso, Chile
-Place: 8 km NW of Valparaíso
-Magnitude: 5.2 Mw
-Date/Time: 2025-09-18 04:33:22
-Location: https://www.google.com/maps?q=-33.0458,-71.6197
+Lugar: 8 km NW of Valparaíso
+Magnitud: 5.2 Mw
+Fecha/Hora: 2025-09-18 04:33:22
+Localización: https://www.google.com/maps?q=-33.0458,-71.6197
 ```
 
 ---
 
-## 🚀 Manual Feed Refresh
+## 🚀 Services / Actions
+
+### Force Feed Refresh
 
 Call the following service to manually refresh the earthquake feed:
 
@@ -140,6 +152,17 @@ service: usgs_earthquakes_feed.force_feed_update
 ```
 
 You can trigger this from Developer Tools, automations, or UI buttons.
+
+### Get Formatted Events
+
+Call this action to retrieve the stored events as formatted text (response variable required):
+
+```yaml
+action: usgs_earthquakes_feed.format_events
+response_variable: quake_report
+```
+
+The variable `quake_report.formatted_events` will contain a multiline string with event details.
 
 ---
 

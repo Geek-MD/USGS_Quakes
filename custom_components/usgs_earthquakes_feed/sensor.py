@@ -3,18 +3,19 @@
 from __future__ import annotations
 
 from typing import Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.dt import as_local
 
 from .const import DOMAIN
+from .helpers import parse_event_time
 
 import logging
 
@@ -45,7 +46,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self._attr_device_info = device_info
         self._events: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any = None
-        self._attr_native_value: str | None = None
+        self._attr_native_value: datetime | None = None
 
     async def async_added_to_hass(self) -> None:
         self._unsub_dispatcher = async_dispatcher_connect(
@@ -60,7 +61,6 @@ class UsgsQuakesLatestSensor(SensorEntity):
             self._unsub_dispatcher()
             self._unsub_dispatcher = None
 
-    @callback
     async def _async_update_events(self) -> None:
         """Update sensor state from the shared event list."""
         new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
@@ -74,25 +74,23 @@ class UsgsQuakesLatestSensor(SensorEntity):
         else:
             filtered_events = [e for e in new_events if e["id"] not in existing_ids]
 
-        def parse_time(e: dict[str, Any]) -> datetime:
-            t = str(e["time"])
-            if t.endswith("Z"):
-                t = t.replace("Z", "+00:00")
-            try:
-                return datetime.fromisoformat(t)
-            except Exception:
-                return datetime.min
-
         # Agregar nuevos eventos y reordenar
         self._events.extend(filtered_events)
-        self._events = sorted(self._events, key=parse_time, reverse=True)[:MAX_EVENTS]
+        self._events = sorted(
+            self._events, key=lambda e: parse_event_time(e), reverse=True
+        )[:MAX_EVENTS]
 
         # Actualizar valor del sensor (fecha del más reciente)
         if self._events:
             try:
-                dt = datetime.fromisoformat(self._events[0]["time"].replace("Z", "+00:00"))
+                time_val = self._events[0]["time"]
+                if isinstance(time_val, datetime):
+                    dt = time_val if time_val.tzinfo else time_val.replace(tzinfo=timezone.utc)
+                else:
+                    dt = datetime.fromisoformat(str(time_val).replace("Z", "+00:00"))
                 self._attr_native_value = as_local(dt)
-            except Exception:
+            except (ValueError, AttributeError):
+                _LOGGER.debug("Could not parse native value from event time: %s", self._events[0].get("time"))
                 self._attr_native_value = None
         else:
             self._attr_native_value = None
@@ -106,36 +104,8 @@ class UsgsQuakesLatestSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        formatted_lines = []
-
-        for e in self._events:
-            # Fecha y hora local
-            dt_str = e.get("time", "")
-            try:
-                dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
-                dt_str = as_local(dt).strftime("%Y-%m-%d %H:%M:%S")
-            except Exception:
-                pass
-
-            # Coordenadas
-            coords = e.get("coordinates", [None, None])
-            lat = coords[0]
-            lon = coords[1]
-            maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat is not None and lon is not None else "N/A"
-
-            # Formato
-            text = (
-                f"{e.get('title', 'N/A')}\n"
-                f"Lugar: {e.get('place', 'N/A')}\n"
-                f"Magnitud: {e.get('magnitude', 'N/A')} Mw\n"
-                f"Fecha/Hora: {dt_str}\n"
-                f"Localización: {maps_url}"
-            )
-            formatted_lines.append(text)
-
         return {
             "events": self._events,
-            "formatted_events": "\n\n".join(formatted_lines),
         }
 
 
