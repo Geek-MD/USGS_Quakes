@@ -11,8 +11,12 @@ from homeassistant.util.dt import as_local
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_event_time(time_val: Any) -> datetime:
-    """Parse an event time value that may be a datetime object or an ISO string."""
+def parse_event_time(event_or_time: Any) -> datetime:
+    """Parse an event time value that may be an event dict, datetime object, or ISO string."""
+    if isinstance(event_or_time, dict):
+        time_val = event_or_time.get("time")
+    else:
+        time_val = event_or_time
     if isinstance(time_val, datetime):
         return time_val
     t_str = str(time_val) if time_val is not None else ""

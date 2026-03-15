@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2026-03-15
+
+### Fixed
+- **Redundant lambda wrappers removed from `sensor.py`**: Both `sorted()` calls that used `key=lambda e: parse_event_time(e)` now use `key=parse_event_time` directly, as suggested by code review.
+- **`parse_event_time` now handles event dicts**: Updated `helpers.py` so that `parse_event_time` correctly extracts the `"time"` field when passed a full event dict, allowing it to be used directly as a sort key without an intermediate lambda.
+
 ## [1.2.2] - 2026-03-15
 
 ### Fixed

@@ -78,12 +78,12 @@ class UsgsQuakesLatestSensor(SensorEntity):
         # Agregar nuevos eventos y reordenar
         self._events.extend(filtered_events)
         self._events = sorted(
-            self._events, key=lambda e: parse_event_time(e), reverse=True
+            self._events, key=parse_event_time, reverse=True
         )[:MAX_EVENTS]
 
         # latest_events: eventos nuevos de esta actualización, ordenados del más reciente al más antiguo
         self._latest_events = sorted(
-            filtered_events, key=lambda e: parse_event_time(e), reverse=True
+            filtered_events, key=parse_event_time, reverse=True
         )
 
         # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
