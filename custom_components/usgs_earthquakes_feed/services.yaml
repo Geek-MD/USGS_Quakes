@@ -7,5 +7,3 @@ format_events:
   name: Format Events
   description: "Returns the stored earthquake events formatted as human-readable text."
   fields: {}
-  response:
-    optional: false
