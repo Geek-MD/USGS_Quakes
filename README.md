@@ -127,18 +127,6 @@ You can trigger this from Developer Tools, automations, or UI buttons.
 
 ---
 
-## 💡 Optional Lovelace Cards
-
-For visualizing data in Lovelace, install the **USGS Quakes Cards** from [USGS Quakes Cards](https://github.com/Geek-MD/usgs_quakes_cards) repository:
-
-- Map of recent earthquakes
-- List of formatted events
-- Button to manually refresh the feed
-
-These cards are **not included in this repository** and must be added manually or via HACS (coming soon).
-
----
-
 ## 📓 Notes
 
 - On first setup, **all events** matching the filters are included.
