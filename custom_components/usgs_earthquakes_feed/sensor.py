@@ -21,7 +21,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_NAME = "USGS Quakes Latest"
-SENSOR_UNIQUE_ID = "usgs_quakes_latest"
+SENSOR_UNIQUE_ID = "usgs_earthquakes_feed_latest"
 
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
@@ -145,7 +145,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     device_info = DeviceInfo(
-        identifiers={(DOMAIN, "usgs_quakes")},
+        identifiers={(DOMAIN, "usgs_earthquakes_feed")},
         name="USGS Quakes Feed",
         manufacturer="USGS",
         entry_type="service",

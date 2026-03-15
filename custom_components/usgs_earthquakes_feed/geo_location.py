@@ -25,11 +25,11 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=5)
 
-SIGNAL_DELETE_ENTITY = "usgs_quakes_delete_{}"
-SIGNAL_UPDATE_ENTITY = "usgs_quakes_update_{}"
+SIGNAL_DELETE_ENTITY = "usgs_earthquakes_feed_delete_{}"
+SIGNAL_UPDATE_ENTITY = "usgs_earthquakes_feed_update_{}"
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
-SOURCE = "usgs_quakes"
+SOURCE = "usgs_earthquakes_feed"
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -184,7 +184,7 @@ class UsgsQuakesEvent(GeolocationEvent):
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
-            identifiers={(DOMAIN, "usgs_quakes")},
+            identifiers={(DOMAIN, "usgs_earthquakes_feed")},
             name="USGS Quakes Feed",
             manufacturer="USGS",
             entry_type="service",
