@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.5] - 2026-03-15
+
+### Changed
+- Moved `logo.png`, `logo@2x.png`, `icon.png`, and `icon@2x.png` to `custom_components/usgs_quakes/brand/`
+- Updated README.md icon image link to reference new brand directory location
+
 ## [1.1.4] - 2025-12-11
 
 ### Fixed
