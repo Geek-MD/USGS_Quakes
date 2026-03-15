@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-03-15
+
+### Fixed
+- **Restored `latest_events` attribute**: The sensor's `extra_state_attributes` now includes a `latest_events` key that was inadvertently removed in v1.2.1.
+  - On the first update, `latest_events` contains all events reported by the integration, ordered from most recent to oldest.
+  - On subsequent updates, `latest_events` contains only the new events since the previous update, ordered from most recent to oldest.
+
 ## [1.2.1] - 2026-03-15
 
 ### Fixed
