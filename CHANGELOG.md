@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-03-15
+
+### Changed
+- Changed integration domain from `usgs_quakes` to `usgs_earthquakes_feed` to override the built-in HA core integration of the same name
+- Kept integration name as "USGS Quakes"
+- Renamed `custom_components/usgs_quakes/` folder to `custom_components/usgs_earthquakes_feed/`
+- Updated `manifest.json`, `hacs.json`, `mypy.ini`, and GitHub Actions workflow to reflect new domain
+- Updated `README.md` references to new domain and sensor/service names
+- Updated `STORAGE_KEY` and device identifiers to use `usgs_earthquakes_feed`
+- Brand images remain in `custom_components/usgs_earthquakes_feed/brand/` for local brand image support
+
 ## [1.1.5] - 2026-03-15
 
 ### Changed

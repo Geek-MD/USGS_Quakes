@@ -1,4 +1,4 @@
-DOMAIN = "usgs_quakes"
+DOMAIN = "usgs_earthquakes_feed"
 
 CONF_RADIUS = "radius"
 CONF_MINIMUM_MAGNITUDE = "minimum_magnitude"
@@ -13,7 +13,7 @@ DEFAULT_MINIMUM_MAGNITUDE = 0.0
 PLATFORMS = ["geo_location", "sensor"]
 
 # Claves de almacenamiento
-STORAGE_KEY = "usgs_quakes_events"
+STORAGE_KEY = "usgs_earthquakes_feed_events"
 STORAGE_VERSION = 1
 
 # Tipos de feed válidos

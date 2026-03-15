@@ -10,7 +10,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-<img width="200" height="200" alt="icon" src="https://github.com/Geek-MD/USGS_Quakes/blob/main/custom_components/usgs_quakes/brand/icon.png?raw=true" />
+<img width="200" height="200" alt="icon" src="https://github.com/Geek-MD/USGS_Quakes/blob/main/custom_components/usgs_earthquakes_feed/brand/icon.png?raw=true" />
 
 # USGS Quakes
 
@@ -25,7 +25,7 @@
   - **Minimum Magnitude (Mw)**
   - **Maximum Distance** from your location (Radius)
 - Creates `geo_location` entities for each event.
-- Includes a special sensor `sensor.usgs_quakes_latest` that:
+- Includes a special sensor `sensor.usgs_earthquakes_feed_latest` that:
   - Stores only **new** earthquake events (based on their unique `id`)
   - Exposes a formatted list of recent events:
     - Title
@@ -62,7 +62,7 @@
 ### Option 2: Manual Installation
 
 1. Download this repository.
-2. Copy the folder `custom_components/usgs_quakes/` into your Home Assistant `config/custom_components/` directory.
+2. Copy the folder `custom_components/usgs_earthquakes_feed/` into your Home Assistant `config/custom_components/` directory.
 3. Restart Home Assistant.
 4. Add the integration via the UI.
 
@@ -95,7 +95,7 @@ Full list: [USGS GeoJSON Feed Documentation](https://earthquake.usgs.gov/earthqu
 
 ---
 
-## 🧪 Sensor: `sensor.usgs_quakes_latest`
+## 🧪 Sensor: `sensor.usgs_earthquakes_feed_latest`
 
 This sensor exposes:
 
@@ -120,7 +120,7 @@ Location: https://www.google.com/maps?q=-33.0458,-71.6197
 Call the following service to manually refresh the earthquake feed:
 
 ```yaml
-service: usgs_quakes.force_feed_update
+service: usgs_earthquakes_feed.force_feed_update
 ```
 
 You can trigger this from Developer Tools, automations, or UI buttons.
