@@ -31,9 +31,9 @@
   - **Maximum Distance** from your location (Radius)
 - Creates `geo_location` entities for each event.
 - Includes a special sensor `sensor.usgs_earthquakes_feed_latest` that:
-  - Stores the last **50** new earthquake events (based on their unique `id`)
-  - State is the timestamp of the most recent event
-  - Exposes the full list of stored events via the `events` attribute
+  - State is the timestamp of the most recent **new** earthquake event
+  - Exposes new events via the `latest_events` attribute (only events detected in the current update cycle; empty when no new earthquakes have arrived)
+  - Fires a `usgs_earthquakes_feed_new_events` event on the HA event bus whenever new earthquakes are detected
 - Includes a `format_events` action that returns earthquake events as formatted text via a response variable
 
 ---
@@ -112,8 +112,50 @@ Full list: [USGS GeoJSON Feed Documentation](https://earthquake.usgs.gov/earthqu
 
 This sensor exposes:
 
-- `state`: Timestamp of the latest event
-- `events`: List of the last 50 new earthquakes (stored across restarts)
+- `state`: Timestamp of the most recent **new** earthquake event (only changes when new earthquakes are detected)
+- `latest_events`: List of new earthquakes detected in the current update cycle, ordered from newest to oldest. Empty when no new earthquakes have arrived since the last update.
+
+> **How it works:**
+> - **First run** (or after HA restart): `latest_events` contains all earthquakes that match your filter criteria.
+> - **Subsequent updates with no new earthquakes**: `latest_events` is empty (`[]`) and the sensor state does not change.
+> - **New earthquake detected**: `latest_events` contains only the new event(s), the sensor state updates to the newest event's timestamp.
+
+---
+
+## 📣 Event: `usgs_earthquakes_feed_new_events`
+
+Every time new earthquakes are detected the integration fires this event on the HA event bus. You can use it as an automation trigger:
+
+```yaml
+trigger:
+  - platform: event
+    event_type: usgs_earthquakes_feed_new_events
+```
+
+The event data contains:
+
+| Field | Description |
+|---|---|
+| `entry_id` | Config-entry ID of the integration instance |
+| `count` | Number of new events detected |
+| `events` | List of new earthquake event dicts |
+
+### Example automation using the event:
+
+```yaml
+automation:
+  - alias: "Notify on new earthquake"
+    trigger:
+      - platform: event
+        event_type: usgs_earthquakes_feed_new_events
+    action:
+      - service: notify.mobile_app_my_phone
+        data:
+          title: "🌍 New Earthquake"
+          message: >
+            {{ trigger.event.data.count }} new earthquake(s) detected.
+            Latest: {{ trigger.event.data.events[0].title }}
+```
 
 ---
 
@@ -168,9 +210,10 @@ The variable `quake_report.formatted_events` will contain a multiline string wit
 
 ## 📓 Notes
 
-- On first setup, **all events** matching the filters are included.
-- On updates, only **new events** (based on USGS `id`) are added.
-- Sensor shows events in reverse chronological order (newest first).
+- On first setup (or after HA restart), **all events** matching the filters are treated as new and included in `latest_events`.
+- On subsequent updates, only **new events** (based on USGS `id`) are included in `latest_events`.
+- When no new earthquakes are detected, `latest_events` is empty (`[]`) and the sensor state does not change.
+- Events in `latest_events` are ordered from newest to oldest.
 - All magnitude and distance values follow standard units (Mw, km).
 
 ---

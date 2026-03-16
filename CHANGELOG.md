@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.7] - 2026-03-16
+
+### Added
+- **`usgs_earthquakes_feed_new_events` HA event**: The sensor now fires this event on the HA event bus every time new earthquake events are detected. Automations can use `trigger: platform: event / event_type: usgs_earthquakes_feed_new_events` to react instantly. The event payload contains `entry_id`, `count` (number of new events), and `events` (the list of new event dicts).
+- **`EVENT_NEW_QUAKES` constant** added to `const.py` to hold the event name.
+
+### Fixed
+- **README**: Updated sensor description to reflect the `latest_events` delta semantics introduced in v1.2.6 (removed references to the old `events` attribute and the "last 50 events" cap). Added full documentation for the new HA event and an example automation.
+
+
+### Fixed
+- **Conceptual error in v1.2.5**: `latest_events` was incorrectly made a cumulative list that grew on every update, always containing all historical events. The correct behaviour is:
+  - `latest_events` contains **only the new events** detected in the current update cycle (events whose IDs have not been seen before).
+  - On the **first run** (or after HA restarts), all events returned by the feed are considered new, so `latest_events` is populated with all of them.
+  - On **subsequent runs** where no new earthquakes have been reported, `latest_events` is empty (`[]`), the sensor state does not change, and automations that trigger on state change are not fired.
+  - When a **new earthquake** is detected, `latest_events` contains only that event (or those events), the sensor state updates to the most recent event's timestamp, and the automation is triggered.
+
+### Changed
+- Replaced the cumulative `_latest_events` accumulator with an internal `_seen_ids: set[str]` that tracks which event IDs have already been reported. This is not exposed as a sensor attribute.
+- Removed the now-unused `MAX_EVENTS` constant from `sensor.py`.
+
+## [1.2.5] - 2026-03-16
+
+### Fixed
+- **`latest_events` was always empty after the first update cycle**: The sensor previously maintained two separate lists — `events` (cumulative) and `latest_events` (new events only per cycle). Because `latest_events` was reset to only the newly-detected IDs on every update, it became empty whenever no brand-new earthquakes arrived, causing the `format_events` service to return an empty result.
+
+### Changed
+- **Removed `events` attribute from the sensor**: Seismic events are now exposed solely through the `latest_events` attribute, which accumulates all events (up to 50) ordered from most recent to oldest — mirroring the previous behaviour of the `events` attribute.
+- **Diagnostics now report `latest_events`**: The diagnostics payload has been updated to expose `latest_events` instead of the removed `events` key.
+
 ## [1.2.4] - 2026-03-16
 
 ### Fixed

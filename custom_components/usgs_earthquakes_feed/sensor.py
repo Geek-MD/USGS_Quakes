@@ -14,7 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.dt import as_local
 
-from .const import DOMAIN
+from .const import DOMAIN, EVENT_NEW_QUAKES
 from .helpers import parse_event_time
 
 import logging
@@ -25,8 +25,6 @@ SENSOR_NAME = "USGS Quakes Latest"
 SENSOR_UNIQUE_ID = "usgs_earthquakes_feed_latest"
 
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
-
-MAX_EVENTS = 50  # Máximo de eventos a almacenar
 
 
 class UsgsQuakesLatestSensor(SensorEntity):
@@ -44,7 +42,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self.hass = hass
         self._entry_id = entry_id
         self._attr_device_info = device_info
-        self._events: list[dict[str, Any]] = []
+        self._seen_ids: set[str] = set()
         self._latest_events: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any = None
         self._attr_native_value: datetime | None = None
@@ -66,56 +64,50 @@ class UsgsQuakesLatestSensor(SensorEntity):
         """Update sensor state from the shared event list."""
         new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
 
-        # Crear conjunto con las ids ya almacenadas
-        existing_ids = {e["id"] for e in self._events}
+        # Determinar qué eventos son nuevos (no vistos antes)
+        filtered_events = [e for e in new_events if e["id"] not in self._seen_ids]
 
-        # Determinar si es primera ejecución (sin eventos guardados)
-        if not self._events:
-            filtered_events = new_events
-        else:
-            filtered_events = [e for e in new_events if e["id"] not in existing_ids]
+        # Registrar los nuevos IDs como vistos
+        self._seen_ids.update(e["id"] for e in filtered_events)
 
-        # Agregar nuevos eventos y reordenar
-        self._events.extend(filtered_events)
-        self._events = sorted(
-            self._events, key=parse_event_time, reverse=True
-        )[:MAX_EVENTS]
-
-        # latest_events: eventos nuevos de esta actualización, ordenados del más reciente al más antiguo
-        self._latest_events = sorted(
-            filtered_events, key=parse_event_time, reverse=True
-        )
+        # latest_events: solo los eventos nuevos de este ciclo, del más reciente al más antiguo
+        self._latest_events = sorted(filtered_events, key=parse_event_time, reverse=True)
 
         # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
         entry_data = self.hass.data[DOMAIN].setdefault(self._entry_id, {})
         entry_data["latest_events"] = self._latest_events
 
-        # Actualizar valor del sensor (fecha del más reciente)
-        if self._events:
+        # Actualizar el estado del sensor solo cuando lleguen eventos nuevos
+        if self._latest_events:
             try:
-                time_val = self._events[0]["time"]
+                time_val = self._latest_events[0]["time"]
                 if isinstance(time_val, datetime):
                     dt = time_val if time_val.tzinfo else time_val.replace(tzinfo=timezone.utc)
                 else:
                     dt = datetime.fromisoformat(str(time_val).replace("Z", "+00:00"))
                 self._attr_native_value = as_local(dt)
             except (ValueError, AttributeError):
-                _LOGGER.debug("Could not parse native value from event time: %s", self._events[0].get("time"))
-                self._attr_native_value = None
-        else:
-            self._attr_native_value = None
+                _LOGGER.debug("Could not parse native value from event time: %s", self._latest_events[0].get("time"))
+
+            # Disparar evento en el bus de HA para que las automatizaciones puedan reaccionar
+            self.hass.bus.async_fire(
+                EVENT_NEW_QUAKES,
+                {
+                    "entry_id": self._entry_id,
+                    "count": len(self._latest_events),
+                    "events": self._latest_events,
+                },
+            )
 
         _LOGGER.debug(
-            "USGS Quakes Sensor actualizado. Nuevos eventos: %d. Total almacenados: %d.",
+            "USGS Quakes Sensor actualizado. Nuevos eventos: %d.",
             len(filtered_events),
-            len(self._events),
         )
         self.async_write_ha_state()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
-            "events": self._events,
             "latest_events": self._latest_events,
         }
 

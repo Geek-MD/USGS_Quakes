@@ -15,6 +15,6 @@ async def async_get_config_entry_diagnostics(
     diagnostics = {
         "config": entry.data,
         "options": entry.options,
-        "events": data.get("events", []),
+        "latest_events": data.get("latest_events", []),
     }
     return diagnostics

@@ -1,5 +1,8 @@
 DOMAIN = "usgs_earthquakes_feed"
 
+# Event fired on the HA event bus whenever new earthquake events are detected
+EVENT_NEW_QUAKES = f"{DOMAIN}_new_events"
+
 CONF_RADIUS = "radius"
 CONF_MINIMUM_MAGNITUDE = "minimum_magnitude"
 CONF_FEED_TYPE = "feed_type"
