@@ -14,7 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.dt import as_local
 
-from .const import DOMAIN
+from .const import DOMAIN, EVENT_NEW_QUAKES
 from .helpers import parse_event_time
 
 import logging
@@ -88,6 +88,16 @@ class UsgsQuakesLatestSensor(SensorEntity):
                 self._attr_native_value = as_local(dt)
             except (ValueError, AttributeError):
                 _LOGGER.debug("Could not parse native value from event time: %s", self._latest_events[0].get("time"))
+
+            # Disparar evento en el bus de HA para que las automatizaciones puedan reaccionar
+            self.hass.bus.async_fire(
+                EVENT_NEW_QUAKES,
+                {
+                    "entry_id": self._entry_id,
+                    "count": len(self._latest_events),
+                    "events": self._latest_events,
+                },
+            )
 
         _LOGGER.debug(
             "USGS Quakes Sensor actualizado. Nuevos eventos: %d.",

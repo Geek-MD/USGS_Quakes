@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.6] - 2026-03-16
+## [1.2.7] - 2026-03-16
+
+### Added
+- **`usgs_earthquakes_feed_new_events` HA event**: The sensor now fires this event on the HA event bus every time new earthquake events are detected. Automations can use `trigger: platform: event / event_type: usgs_earthquakes_feed_new_events` to react instantly. The event payload contains `entry_id`, `count` (number of new events), and `events` (the list of new event dicts).
+- **`EVENT_NEW_QUAKES` constant** added to `const.py` to hold the event name.
+
+### Fixed
+- **README**: Updated sensor description to reflect the `latest_events` delta semantics introduced in v1.2.6 (removed references to the old `events` attribute and the "last 50 events" cap). Added full documentation for the new HA event and an example automation.
+
 
 ### Fixed
 - **Conceptual error in v1.2.5**: `latest_events` was incorrectly made a cumulative list that grew on every update, always containing all historical events. The correct behaviour is:
