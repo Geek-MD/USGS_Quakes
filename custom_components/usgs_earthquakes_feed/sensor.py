@@ -44,7 +44,6 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self.hass = hass
         self._entry_id = entry_id
         self._attr_device_info = device_info
-        self._events: list[dict[str, Any]] = []
         self._latest_events: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any = None
         self._attr_native_value: datetime | None = None
@@ -66,41 +65,31 @@ class UsgsQuakesLatestSensor(SensorEntity):
         """Update sensor state from the shared event list."""
         new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
 
-        # Crear conjunto con las ids ya almacenadas
-        existing_ids = {e["id"] for e in self._events}
-
-        # Determinar si es primera ejecución (sin eventos guardados)
-        if not self._events:
-            filtered_events = new_events
-        else:
-            filtered_events = [e for e in new_events if e["id"] not in existing_ids]
+        # Filtrar eventos nuevos no vistos antes
+        existing_ids = {e["id"] for e in self._latest_events}
+        filtered_events = [e for e in new_events if e["id"] not in existing_ids]
 
         # Agregar nuevos eventos y reordenar
-        self._events.extend(filtered_events)
-        self._events = sorted(
-            self._events, key=parse_event_time, reverse=True
-        )[:MAX_EVENTS]
-
-        # latest_events: eventos nuevos de esta actualización, ordenados del más reciente al más antiguo
+        self._latest_events.extend(filtered_events)
         self._latest_events = sorted(
-            filtered_events, key=parse_event_time, reverse=True
-        )
+            self._latest_events, key=parse_event_time, reverse=True
+        )[:MAX_EVENTS]
 
         # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
         entry_data = self.hass.data[DOMAIN].setdefault(self._entry_id, {})
         entry_data["latest_events"] = self._latest_events
 
         # Actualizar valor del sensor (fecha del más reciente)
-        if self._events:
+        if self._latest_events:
             try:
-                time_val = self._events[0]["time"]
+                time_val = self._latest_events[0]["time"]
                 if isinstance(time_val, datetime):
                     dt = time_val if time_val.tzinfo else time_val.replace(tzinfo=timezone.utc)
                 else:
                     dt = datetime.fromisoformat(str(time_val).replace("Z", "+00:00"))
                 self._attr_native_value = as_local(dt)
             except (ValueError, AttributeError):
-                _LOGGER.debug("Could not parse native value from event time: %s", self._events[0].get("time"))
+                _LOGGER.debug("Could not parse native value from event time: %s", self._latest_events[0].get("time"))
                 self._attr_native_value = None
         else:
             self._attr_native_value = None
@@ -108,14 +97,13 @@ class UsgsQuakesLatestSensor(SensorEntity):
         _LOGGER.debug(
             "USGS Quakes Sensor actualizado. Nuevos eventos: %d. Total almacenados: %d.",
             len(filtered_events),
-            len(self._events),
+            len(self._latest_events),
         )
         self.async_write_ha_state()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
-            "events": self._events,
             "latest_events": self._latest_events,
         }
 

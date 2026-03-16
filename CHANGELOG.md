@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5] - 2026-03-16
+
+### Fixed
+- **`latest_events` was always empty after the first update cycle**: The sensor previously maintained two separate lists — `events` (cumulative) and `latest_events` (new events only per cycle). Because `latest_events` was reset to only the newly-detected IDs on every update, it became empty whenever no brand-new earthquakes arrived, causing the `format_events` service to return an empty result.
+
+### Changed
+- **Removed `events` attribute from the sensor**: Seismic events are now exposed solely through the `latest_events` attribute, which accumulates all events (up to 50) ordered from most recent to oldest — mirroring the previous behaviour of the `events` attribute.
+- **Diagnostics now report `latest_events`**: The diagnostics payload has been updated to expose `latest_events` instead of the removed `events` key.
+
 ## [1.2.4] - 2026-03-16
 
 ### Fixed
