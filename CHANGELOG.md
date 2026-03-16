@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2026-03-16
+
+### Fixed
+- **`OptionsFlowHandler` no longer raises `AttributeError` on reconfiguration**: Removed the `__init__` method from `OptionsFlowHandler` that tried to set `self.config_entry = config_entry`. In newer versions of Home Assistant, `config_entry` is a read-only property on `OptionsFlow` and is automatically injected by the framework. The `async_get_options_flow` method now returns `OptionsFlowHandler()` without passing `config_entry` manually.
+
 ## [1.2.3] - 2026-03-15
 
 ### Fixed
