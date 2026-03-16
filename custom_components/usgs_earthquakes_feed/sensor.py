@@ -26,8 +26,6 @@ SENSOR_UNIQUE_ID = "usgs_earthquakes_feed_latest"
 
 SIGNAL_EVENTS_UPDATED = f"{DOMAIN}_events_updated_{{}}"
 
-MAX_EVENTS = 50  # Máximo de eventos a almacenar
-
 
 class UsgsQuakesLatestSensor(SensorEntity):
     """Sensor to store the latest USGS quake events."""
@@ -44,6 +42,7 @@ class UsgsQuakesLatestSensor(SensorEntity):
         self.hass = hass
         self._entry_id = entry_id
         self._attr_device_info = device_info
+        self._seen_ids: set[str] = set()
         self._latest_events: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any = None
         self._attr_native_value: datetime | None = None
@@ -65,21 +64,20 @@ class UsgsQuakesLatestSensor(SensorEntity):
         """Update sensor state from the shared event list."""
         new_events = self.hass.data[DOMAIN][self._entry_id].get("events", [])
 
-        # Filtrar eventos nuevos no vistos antes
-        existing_ids = {e["id"] for e in self._latest_events}
-        filtered_events = [e for e in new_events if e["id"] not in existing_ids]
+        # Determinar qué eventos son nuevos (no vistos antes)
+        filtered_events = [e for e in new_events if e["id"] not in self._seen_ids]
 
-        # Agregar nuevos eventos y reordenar
-        self._latest_events.extend(filtered_events)
-        self._latest_events = sorted(
-            self._latest_events, key=parse_event_time, reverse=True
-        )[:MAX_EVENTS]
+        # Registrar los nuevos IDs como vistos
+        self._seen_ids.update(e["id"] for e in filtered_events)
+
+        # latest_events: solo los eventos nuevos de este ciclo, del más reciente al más antiguo
+        self._latest_events = sorted(filtered_events, key=parse_event_time, reverse=True)
 
         # Publicar latest_events en hass.data para que el servicio format_events pueda leerlos
         entry_data = self.hass.data[DOMAIN].setdefault(self._entry_id, {})
         entry_data["latest_events"] = self._latest_events
 
-        # Actualizar valor del sensor (fecha del más reciente)
+        # Actualizar el estado del sensor solo cuando lleguen eventos nuevos
         if self._latest_events:
             try:
                 time_val = self._latest_events[0]["time"]
@@ -90,14 +88,10 @@ class UsgsQuakesLatestSensor(SensorEntity):
                 self._attr_native_value = as_local(dt)
             except (ValueError, AttributeError):
                 _LOGGER.debug("Could not parse native value from event time: %s", self._latest_events[0].get("time"))
-                self._attr_native_value = None
-        else:
-            self._attr_native_value = None
 
         _LOGGER.debug(
-            "USGS Quakes Sensor actualizado. Nuevos eventos: %d. Total almacenados: %d.",
+            "USGS Quakes Sensor actualizado. Nuevos eventos: %d.",
             len(filtered_events),
-            len(self._latest_events),
         )
         self.async_write_ha_state()
 

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - 2026-03-16
+
+### Fixed
+- **Conceptual error in v1.2.5**: `latest_events` was incorrectly made a cumulative list that grew on every update, always containing all historical events. The correct behaviour is:
+  - `latest_events` contains **only the new events** detected in the current update cycle (events whose IDs have not been seen before).
+  - On the **first run** (or after HA restarts), all events returned by the feed are considered new, so `latest_events` is populated with all of them.
+  - On **subsequent runs** where no new earthquakes have been reported, `latest_events` is empty (`[]`), the sensor state does not change, and automations that trigger on state change are not fired.
+  - When a **new earthquake** is detected, `latest_events` contains only that event (or those events), the sensor state updates to the most recent event's timestamp, and the automation is triggered.
+
+### Changed
+- Replaced the cumulative `_latest_events` accumulator with an internal `_seen_ids: set[str]` that tracks which event IDs have already been reported. This is not exposed as a sensor attribute.
+- Removed the now-unused `MAX_EVENTS` constant from `sensor.py`.
+
 ## [1.2.5] - 2026-03-16
 
 ### Fixed
