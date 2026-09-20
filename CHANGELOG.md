@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.8] - 2026-09-20
+
+### Fixed
+- **Home Assistant 2027.8 compatibility**: Geolocation earthquake entities now have a stable unique ID, namespaced by config entry, before attaching to the integration device. This removes the warning about attaching a device to an entity without a unique ID and prevents collisions when multiple integration entries monitor the same earthquake.
+
 ## [1.2.7] - 2026-03-16
 
 ### Added
