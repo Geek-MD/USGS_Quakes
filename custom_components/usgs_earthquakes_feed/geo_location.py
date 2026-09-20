@@ -171,6 +171,7 @@ class UsgsQuakesEvent(GeolocationEvent):
     def __init__(self, manager: UsgsQuakesFeedEntityManager, external_id: str) -> None:
         self._manager = manager
         self._external_id = external_id
+        self._attr_unique_id = f"{manager._entry_id}_{external_id}"
         self._remove_signal_delete: Callable[[], None]
         self._remove_signal_update: Callable[[], None]
         self._place = None
