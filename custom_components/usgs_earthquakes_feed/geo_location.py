@@ -20,6 +20,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN
+from .map_marker import marker_url
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -224,6 +225,7 @@ class UsgsQuakesEvent(GeolocationEvent):
         self._time = entry.time
         self._place = entry.place
         self._magnitude = entry.magnitude
+        self._attr_entity_picture = marker_url(entry.magnitude)
         self._updated = entry.updated
         self._status = entry.status
         self._type = entry.type

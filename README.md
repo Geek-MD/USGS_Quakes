@@ -14,6 +14,8 @@
 
 # USGS Quakes
 
+Current integration version: **1.2.9**.
+
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
 
 > [!IMPORTANT]
@@ -30,6 +32,7 @@
   - **Minimum Magnitude (Mw)**
   - **Maximum Distance** from your location (Radius)
 - Creates `geo_location` entities for each event.
+- Displays earthquake magnitudes as local image markers in the built-in sidebar Map (no custom map card required).
 - Includes a special sensor `sensor.usgs_earthquakes_feed_latest` that:
   - State is the timestamp of the most recent **new** earthquake event
   - Exposes new events via the `latest_events` attribute (only events detected in the current update cycle; empty when no new earthquakes have arrived)
@@ -80,6 +83,16 @@ Version 1.2.0 changed the integration domain from `usgs_quakes` to `usgs_earthqu
 4. Go to **Settings → Devices & Services → Add Integration** and set up **USGS Quakes** again.
 
 ---
+
+## Sidebar Map magnitude markers (v1.2.9)
+
+Each earthquake exposes an `entity_picture` containing its magnitude, for example **4.3**, so the built-in Map in the left sidebar can show the number instead of initials such as **UQM**. Other devices remain on the same map. Entity names, IDs, coordinates, attributes, and the distance state are unchanged.
+
+After upgrading, restart Home Assistant to register the image endpoint and refresh the browser or reopen the mobile app. No dashboard YAML or custom card is needed. If Home Assistant groups nearby markers, zoom in to see individual magnitudes. Remove any manually configured `entity_picture` override if it hides the integration's image.
+
+Images are generated locally as SVGs and shared by magnitude. A USGS magnitude revision changes the URL, avoiding stale images. Invalid or missing magnitudes use the normal map marker. The versioned image endpoint is public so browser and mobile image requests can load it without an authorization header; it only renders validated numbers and exposes no event or location data. There are no external image services or generated files on disk.
+
+The rendering mechanism was checked against the frontend shipped with HA **2026.10.2**. An end-to-end visual check in a running Home Assistant installation is still required.
 
 ## 🔧 Configuration
 
