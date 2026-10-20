@@ -14,6 +14,7 @@ from .const import (
     PLATFORMS,
 )
 from .helpers import format_event, parse_event_time
+from .map_marker import UsgsMagnitudeMarkerView
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the USGS Quakes integration (legacy config)."""
+    hass.http.register_view(UsgsMagnitudeMarkerView)
     return True
 
 

@@ -3,15 +3,15 @@
   "name": "USGS Quakes",
   "codeowners": ["@Geek-MD"],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["http"],
   "documentation": "https://github.com/Geek-MD/USGS_Quakes",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "loggers": ["aio_geojson_usgs_earthquakes"],
   "quality_scale": "custom",
   "requirements": [
-    "aio-geojson-usgs-earthquakes==0.3",
+    "aio-geojson-usgs-earthquakes>=0.3",
     "aio-geojson-client==0.12"
   ],
-  "version": "1.2.8"
+  "version": "1.2.9"
 }
