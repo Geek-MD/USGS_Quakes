@@ -10,7 +10,7 @@
   "loggers": ["aio_geojson_usgs_earthquakes"],
   "quality_scale": "custom",
   "requirements": [
-    "aio-geojson-usgs-earthquakes==0.3",
+    "aio-geojson-usgs-earthquakes>=0.3",
     "aio-geojson-client==0.12"
   ],
   "version": "1.2.9"
