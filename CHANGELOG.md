@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [1.2.9] - 2026-10-20
 
 ### Fixed
+- **Hassfest requirements validation**: Use `aio-geojson-usgs-earthquakes>=0.3` instead of an exact pin, allowing the dependency shared with Home Assistant Core to follow Core updates.
 - Earthquake markers in the built-in sidebar Map now display their magnitude through a locally generated SVG `entity_picture`, instead of name initials such as `UQM`. No custom card or Home Assistant frontend modification is required.
 - Magnitude revisions change the picture URL automatically. Missing or invalid magnitudes fall back to the normal marker.
 
