@@ -6,6 +6,10 @@
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Geek-MD/USGS_Quakes/blob/main/LICENSE)
 [![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-blue)](https://hacs.xyz/)
 
+<!-- ha-marketplace:exclude-start -->
+[![Open your Home Assistant instance and open USGS Quakes in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=Geek-MD&repository=USGS_Quakes&category=integration)
+<!-- ha-marketplace:exclude-end -->
+
 [![Ruff + Mypy + Hassfest](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/validate.yaml/badge.svg)](https://github.com/Geek-MD/USGS_Quakes/actions/workflows/validate.yaml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
@@ -14,9 +18,11 @@
 
 # USGS Quakes
 
-Current integration version: **1.2.9**.
+Current integration version: **1.2.10**.
 
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
+
+Version **1.2.10** adds Home Assistant 2026.11 Marketplace metadata and aligns its minimum USGS feed dependency with Home Assistant Core.
 
 > [!IMPORTANT]
 > Starting from **v1.2.0**, this integration uses the domain `usgs_earthquakes_feed`, which **overrides the built-in Home Assistant core integration** of the same name. In the integrations overview, it will display a special icon in the upper-right corner of the integration card indicating it overrides a core integration.
@@ -25,7 +31,7 @@ Current integration version: **1.2.9**.
 
 ---
 
-## 🌍 Features
+## ✨ Features
 
 - Monitors earthquakes from the USGS GeoJSON feed.
 - Filters by:
@@ -48,9 +54,15 @@ Current integration version: **1.2.9**.
 
 ---
 
-## 📦 Installation
+## 🛠 Installation
 
-### Option 1: HACS (recommended)
+### Option 1: Marketplace (Home Assistant 2026.11 or newer)
+
+1. Go to **Settings → Marketplace**.
+2. Search for **USGS Quakes**, select **Install**, and confirm the version.
+3. Complete setup when Home Assistant opens the integration page.
+
+### Option 2: HACS (Home Assistant 2026.10 or older)
 
 1. Open HACS in Home Assistant.
 2. Go to **Integrations → Custom Repositories**.
@@ -64,7 +76,7 @@ Current integration version: **1.2.9**.
 
 ---
 
-### Option 2: Manual Installation
+### Option 3: Manual installation
 
 1. Download this repository.
 2. Copy the folder `custom_components/usgs_earthquakes_feed/` into your Home Assistant `config/custom_components/` directory.
@@ -94,7 +106,7 @@ Images are generated locally as SVGs and shared by magnitude. A USGS magnitude r
 
 The rendering mechanism was checked against the frontend shipped with HA **2026.10.2**. An end-to-end visual check in a running Home Assistant installation is still required.
 
-## 🔧 Configuration
+## ⚙️ Configuration
 
 All configuration is done through the UI.
 
@@ -240,7 +252,7 @@ Special thanks to [@AdamsLab01](https://github.com/AdamsLab01) for reporting cri
 
 ---
 
-## 📄 License
+## 📜 License
 
 MIT © Edison Montes [_@GeekMD_](https://github.com/Geek-MD)
 
