@@ -18,7 +18,7 @@ Current integration version: **1.2.10**.
 
 **USGS Quakes** is a custom integration for [Home Assistant](https://www.home-assistant.io) that monitors earthquake events from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/). It provides `geo_location` entities for each event matching your filter criteria.
 
-Version **1.2.10** adds Home Assistant 2026.11 Marketplace metadata and aligns its USGS feed dependency with Home Assistant Core.
+Version **1.2.10** adds Home Assistant 2026.11 Marketplace metadata and aligns its minimum USGS feed dependency with Home Assistant Core.
 
 > [!IMPORTANT]
 > Starting from **v1.2.0**, this integration uses the domain `usgs_earthquakes_feed`, which **overrides the built-in Home Assistant core integration** of the same name. In the integrations overview, it will display a special icon in the upper-right corner of the integration card indicating it overrides a core integration.

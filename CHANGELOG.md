@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Added the public-warning category and issue tracker metadata used by Home Assistant 2026.11 Marketplace.
-- Pinned `aio-geojson-usgs-earthquakes` to the version bundled by Home Assistant 2026.11.
+- Kept `aio-geojson-usgs-earthquakes` aligned with the minimum version bundled by Home Assistant 2026.11.
 - Added the official HACS validation workflow and removed obsolete HACS metadata.
 
 ## [1.2.9] - 2026-10-20
